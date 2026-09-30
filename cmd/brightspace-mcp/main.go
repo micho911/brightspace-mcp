@@ -21,8 +21,10 @@ import (
 const usage = `Usage: brightspace-mcp [command]
 
 Commands:
-  serve     Serve MCP over stdin/stdout (default)
-  version   Print the version
+  serve         Serve MCP over stdin/stdout (default)
+  login <url>   Take the Brightspace session from your browser and save it
+  logout        Remove the saved session
+  version       Print the version
 `
 
 func main() {
@@ -44,6 +46,10 @@ func run(ctx context.Context, args []string, stdout io.Writer) error {
 	switch cmd {
 	case "serve":
 		return server.New(version.String()).Run(ctx, &mcp.StdioTransport{})
+	case "login":
+		return login(ctx, args[1:], stdout)
+	case "logout":
+		return logout(stdout)
 	case "version", "--version":
 		_, err := fmt.Fprintln(stdout, version.String())
 		return err
