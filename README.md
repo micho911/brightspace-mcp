@@ -12,6 +12,15 @@ Ask your AI assistant (Claude Code, Codex, opencode, Cursor, Claude Desktop, …
 - **Read-only by default.** Tools that change anything in Brightspace will be opt-in.
 - **One small binary.** No Node.js, no bundled browser.
 
+## Development
+
+Requires Go 1.25 or newer.
+
+```bash
+go test ./...
+go build ./cmd/brightspace-mcp
+```
+
 ## License
 
 [MIT](LICENSE)
