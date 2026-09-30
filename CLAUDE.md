@@ -104,3 +104,18 @@ go build ./cmd/brightspace-mcp
 
 Claude Code runs the local binary as the `brightspace-dev` MCP server, so
 rebuild and then reconnect (`/mcp`) to pick up changes.
+
+Checking against the real Brightspace (never in CI; the output is personal
+data, so keep it out of commits and PRs):
+
+```bash
+scripts/smoke.py whoami   # MCP handshake + one tool call over stdio
+# Which apps the saved session trusts (prints the ACL, not the secret):
+security dump-keychain -a ~/Library/Keychains/login.keychain-db \
+  | awk '/"svce"<blob>="brightspace-mcp"/{f=1} f&&/applications/{p=1} p{print} p&&/entry 1:/{exit}'
+```
+
+Expected: only `brightspace-mcp` is listed, never `security`. Until builds
+are signed, every rebuild triggers a keychain prompt (see decision 3).
+An old session item created by `/usr/bin/security` can only be removed by
+it: `security delete-generic-password -s brightspace-mcp -a session`.
