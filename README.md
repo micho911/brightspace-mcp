@@ -21,6 +21,10 @@ go test ./...
 go build ./cmd/brightspace-mcp
 ```
 
+On macOS, run `make dev-cert` once and then build with `make build`. It signs
+the binary with a local self-signed identity, so the Keychain does not ask for
+access again after every rebuild.
+
 ## License
 
 [MIT](LICENSE)

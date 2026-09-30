@@ -6,9 +6,6 @@ to **Done** with the PR number. Decisions and conventions are in
 
 ## Next
 
-- [ ] `chore`: stable local code signing (self-signed cert, `make build`) so
-      the keychain does not re-prompt after every dev rebuild (ad-hoc builds
-      are trusted by cdhash). Release signing/notarization comes with GoReleaser.
 - [ ] `feat`: `list_courses` tool (my enrollments: name, code, id, active/dates)
 - [ ] `feat`: `list_announcements` tool (news per course, recent first)
 - [ ] `feat`: `list_upcoming` tool (calendar/due dates across courses)
@@ -58,3 +55,6 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] `serve` uses the saved session; `whoami` tool with login hints on missing/expired session (#4)
 - [x] `login` notes the beta and recommends Allow over Always Allow (#5)
 - [x] Native macOS keychain (`keybase/go-keychain`); items owned by our binary, not `/usr/bin/security`; macOS CI job (#6)
+- [x] Windows/Linux keychain risks and test plan (#7)
+- [x] `scripts/smoke.py` and live verification steps for local dev (#8)
+- [x] Stable local code signing: `make dev-cert` + `make build` (#9)

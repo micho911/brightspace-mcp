@@ -39,8 +39,11 @@ These are settled. Change them only deliberately, and record the change here.
    - Only an item's creator may delete it or change its access list, so
      `Set` updates in place (a new build gets an access prompt) and never
      deletes and re-adds.
-   - Unsigned (ad-hoc) builds are identified by cdhash, so every rebuild
-     prompts again until builds are signed with a stable identity (BACKLOG).
+   - Ad-hoc builds are identified by cdhash, so every rebuild prompts again.
+     Local builds are signed with a self-signed identity (`make dev-cert`
+     once, then `make build`), which keeps the designated requirement
+     (`identifier "brightspace-mcp" and certificate leaf = H"…"`) stable.
+     It is local only; releases get Developer ID signing with GoReleaser.
    - During the beta, `login` recommends **Allow** over **Always Allow**.
      Keep that wording a recommendation, not an order.
 4. **Session goes to one origin only.** `ParseBaseURL` reduces input to
@@ -97,10 +100,16 @@ internal/version/      build version
 ## Local dev
 
 ```bash
-go test -race ./...
-go build ./cmd/brightspace-mcp
+make dev-cert   # once: self-signed code-signing identity in the login keychain
+make test
+make build      # go build + codesign with that identity (macOS)
 ./brightspace-mcp login https://brightspace.au.dk
 ```
+
+The session item trusts the build that created it. After switching from an
+ad-hoc build to a signed one, run `logout` and `login` once (if `logout`
+refuses, delete the `brightspace-mcp` item in Keychain Access) so the signed
+build owns the item; later rebuilds then no longer prompt.
 
 Claude Code runs the local binary as the `brightspace-dev` MCP server, so
 rebuild and then reconnect (`/mcp`) to pick up changes.
@@ -115,7 +124,8 @@ security dump-keychain -a ~/Library/Keychains/login.keychain-db \
   | awk '/"svce"<blob>="brightspace-mcp"/{f=1} f&&/applications/{p=1} p{print} p&&/entry 1:/{exit}'
 ```
 
-Expected: only `brightspace-mcp` is listed, never `security`. Until builds
-are signed, every rebuild triggers a keychain prompt (see decision 3).
+Expected: only `brightspace-mcp` is listed, never `security`. A plain
+`go build` is ad-hoc signed and triggers a keychain prompt after every
+rebuild (see decision 3); `make build` does not.
 An old session item created by `/usr/bin/security` can only be removed by
 it: `security delete-generic-password -s brightspace-mcp -a session`.
