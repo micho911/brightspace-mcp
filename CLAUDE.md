@@ -22,8 +22,15 @@ These are settled. Change them only deliberately, and record the change here.
    RohanMuppa/brightspace-mcp-server (inspiration only; copy no code).
 3. **Cookies only, in the OS keychain.** Only cookies set by the Brightspace
    host itself are stored (parent-domain cookies such as `.au.dk` SSO cookies
-   are dropped), via `zalando/go-keyring`. No files on disk and no config
-   with secrets.
+   are dropped). No files on disk and no config with secrets.
+   **Known gap (fix in progress, see BACKLOG):** `zalando/go-keyring` runs
+   `/usr/bin/security`, so the keychain trusts `security`, not our binary.
+   Any local program can read the session through it without a prompt. We
+   are moving macOS to the native Security API (`keybase/go-keychain`).
+   Until the stable release, `login` says the tool is in beta and recommends
+   **Allow** over **Always Allow** for the browser's `Safe Storage` key
+   ("Always Allow" trusts `security` for every program). Keep the wording a
+   recommendation, not an order.
 4. **Session goes to one origin only.** `ParseBaseURL` reduces input to
    `https://host`. The HTTP client never follows redirects: a redirect, 401,
    or non-JSON response means `ErrSessionExpired`, and the user runs `login`
@@ -45,6 +52,9 @@ These are settled. Change them only deliberately, and record the change here.
 - **Trunk-based.** `main` is always shippable. Every change is a small PR,
   one concern per branch (`feat/…`, `fix/…`, `docs/…`, `chore/…`), merged
   within 12–24 h.
+- **After every PR** update BACKLOG.md (move the item to Done with its PR
+  number) and this file if a decision changed, so a fresh session can pick up
+  from these two files alone.
 - Conventional-commit PR titles (`feat: …`, `fix: …`).
 - CI must pass: `gofmt`, `go mod tidy -diff`, `go vet` (also `GOOS=darwin`),
   `go test -race`, `go build`.
