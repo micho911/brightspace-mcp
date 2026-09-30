@@ -21,7 +21,23 @@ to **Done** with the PR number. Decisions and conventions are in
 - [ ] `feat`: download/read course files (with size limit)
 - [ ] `feat`: `login` status command (who is logged in, which instance)
 - [ ] `feat`: detect expired session mid-`serve` and tell the assistant how to recover
-- [ ] `feat`: Linux and Windows browser cookie support
+- [ ] `feat`: Windows support. **Must be tested on a real Windows machine
+      before we claim support.** Open questions:
+      - Chrome 127+ uses App-Bound Encryption for cookies (only Chrome can
+        decrypt them). Check Chrome, Edge and Brave; reading cookies from the
+        browser may be impossible, which would need a different login method
+        (decide in CLAUDE.md first; it must still never see the password).
+      - Credential Manager limits a secret to 2560 bytes (`ErrSetDataTooBig`).
+        Measure the real session size; if needed, store fewer cookies or
+        split the item.
+      - Credential Manager has no per-app access control: any program running
+        as the user can read the session. Document it; no library fixes it.
+- [ ] `feat`: Linux support. Test on a real desktop (GNOME and KDE):
+      - Secret Service has no per-app access control (same caveat as Windows).
+      - It is often missing (WSL, headless, minimal desktops); `login` must
+        fail with a clear message.
+      - Chromium's cookie key lives in Secret Service, or is the fixed
+        fallback `peanuts` when there is none.
 - [ ] `feat`: Firefox and Safari support
 - [ ] `feat`: choose browser/profile explicitly (`login --browser brave --profile …`)
 - [ ] `feat`: opt-in write tools (e.g. submit to dropbox) behind a flag
