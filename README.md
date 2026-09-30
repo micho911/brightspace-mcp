@@ -14,7 +14,7 @@ Ask your AI assistant (Claude Code, Codex, opencode, Cursor, Claude Desktop, …
 
 ## Development
 
-Requires Go 1.25 or newer.
+Requires Go 1.26 or newer.
 
 ```bash
 go test ./...
