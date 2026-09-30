@@ -10,6 +10,7 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -17,8 +18,16 @@ import (
 // has to log in again.
 var ErrSessionExpired = errors.New("brightspace session expired or invalid")
 
-// lpVersion is the Learning Platform API version used for requests.
-const lpVersion = "1.45"
+// ErrNotFound means the requested item does not exist, or the user cannot
+// see it.
+var ErrNotFound = errors.New("not found in Brightspace")
+
+// API versions used for requests: lp is the Learning Platform (users,
+// enrollments), le the Learning Environment (course tools such as news).
+const (
+	lpVersion = "1.45"
+	leVersion = "1.74"
+)
 
 const maxResponseBytes = 10 << 20
 
@@ -116,6 +125,31 @@ func (c *Client) MyCourses(ctx context.Context) ([]Enrollment, error) {
 	return all, nil
 }
 
+// NewsItem is an announcement in a course.
+type NewsItem struct {
+	ID    int64  `json:"Id"`
+	Title string `json:"Title"`
+	Body  struct {
+		Text string `json:"Text"`
+	} `json:"Body"`
+	// StartDate is when the item is shown; CreatedDate is a fallback.
+	StartDate   *time.Time `json:"StartDate"`
+	CreatedDate *time.Time `json:"CreatedDate"`
+	IsHidden    bool       `json:"IsHidden"`
+	IsPublished bool       `json:"IsPublished"`
+	Attachments []struct {
+		FileName string `json:"FileName"`
+		Size     int64  `json:"Size"`
+	} `json:"Attachments"`
+}
+
+// CourseNews returns the announcements in a course.
+func (c *Client) CourseNews(ctx context.Context, orgUnitID int64) ([]NewsItem, error) {
+	var items []NewsItem
+	err := c.get(ctx, "/d2l/api/le/"+leVersion+"/"+strconv.FormatInt(orgUnitID, 10)+"/news/", &items)
+	return items, err
+}
+
 func (c *Client) get(ctx context.Context, path string, out any) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+path, nil)
 	if err != nil {
@@ -132,6 +166,9 @@ func (c *Client) get(ctx context.Context, path string, out any) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusNotFound {
+		return fmt.Errorf("GET %s: %w", path, ErrNotFound)
+	}
 	if resp.StatusCode == http.StatusUnauthorized || (resp.StatusCode >= 300 && resp.StatusCode < 400) {
 		return ErrSessionExpired
 	}

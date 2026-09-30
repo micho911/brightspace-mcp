@@ -6,7 +6,13 @@ to **Done** with the PR number. Decisions and conventions are in
 
 ## Next
 
-- [ ] `feat`: `list_announcements` tool (news per course, recent first)
+- [ ] `docs`: allow a scoped, short-lived token for D2L's own services (decision 4):
+      session cookies still go only to the instance; the token only to the
+      `https://*.brightspace.com` endpoint the instance names (e.g. the
+      Activity Feed, `prd.activityfeed.<region>.brightspace.com`)
+- [ ] `feat`: `list_activity_feed` tool (course Activity Feed posts; most AU
+      courses post announcements here, not in News). Articles live at
+      `/api/v1/d2l:orgUnit:<id>/article/<uuid>` on the feed host
 - [ ] `feat`: `list_upcoming` tool (calendar/due dates across courses)
 - [ ] `feat`: `list_assignments` tool (dropbox folders with due dates, my submission status)
 - [ ] `feat`: `get_course_content` tool (content modules/topics tree)
@@ -71,3 +77,4 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] `list_courses` tool: my course enrollments, active by default, newest first (#10)
 - [x] Fix doubled course URLs: resolve `HomeUrl` against the instance (#11)
 - [x] Sign dev builds with an Apple Development certificate (Team ID partition); drop the self-signed `make dev-cert` (#12)
+- [x] `list_announcements` tool: News per course, newest first (#14)
