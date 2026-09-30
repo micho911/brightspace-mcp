@@ -44,6 +44,9 @@ func NewClient(baseURL string, cookies []*http.Cookie) *Client {
 	}
 }
 
+// BaseURL returns the Brightspace address the client talks to.
+func (c *Client) BaseURL() string { return c.baseURL }
+
 // Identity is the logged-in user.
 type Identity struct {
 	Identifier string `json:"Identifier"`

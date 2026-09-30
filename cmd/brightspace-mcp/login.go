@@ -37,6 +37,15 @@ func login(ctx context.Context, args []string, stdout io.Writer) error {
 	return err
 }
 
+// connect builds a client from the session saved by login.
+func connect() (*brightspace.Client, error) {
+	s, err := auth.Load()
+	if err != nil {
+		return nil, err
+	}
+	return brightspace.NewClient(s.BaseURL, s.HTTPCookies()), nil
+}
+
 func logout(stdout io.Writer) error {
 	if err := auth.Delete(); err != nil {
 		return err

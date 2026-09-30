@@ -45,7 +45,7 @@ func run(ctx context.Context, args []string, stdout io.Writer) error {
 
 	switch cmd {
 	case "serve":
-		return server.New(version.String()).Run(ctx, &mcp.StdioTransport{})
+		return server.New(version.String(), connect).Run(ctx, &mcp.StdioTransport{})
 	case "login":
 		return login(ctx, args[1:], stdout)
 	case "logout":

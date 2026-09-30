@@ -9,12 +9,12 @@ import (
 )
 
 // connect starts the server in memory and returns a connected client session.
-func connect(t *testing.T) *mcp.ClientSession {
+func connect(t *testing.T, bs Connect) *mcp.ClientSession {
 	t.Helper()
 	ctx := context.Background()
 	serverTransport, clientTransport := mcp.NewInMemoryTransports()
 
-	ss, err := New("v0.0.0-test").Connect(ctx, serverTransport, nil)
+	ss, err := New("v0.0.0-test", bs).Connect(ctx, serverTransport, nil)
 	if err != nil {
 		t.Fatalf("server connect: %v", err)
 	}
@@ -29,7 +29,7 @@ func connect(t *testing.T) *mcp.ClientSession {
 }
 
 func TestGetServerInfo(t *testing.T) {
-	cs := connect(t)
+	cs := connect(t, nil)
 
 	res, err := cs.CallTool(context.Background(), &mcp.CallToolParams{Name: "get_server_info"})
 	if err != nil {
