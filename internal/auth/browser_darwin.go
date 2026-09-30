@@ -9,8 +9,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/zalando/go-keyring"
 )
 
 // chromiumBrowser is a Chromium-based browser installed on macOS.
@@ -80,7 +78,7 @@ func (b *chromiumBrowser) Name() string { return b.name }
 // Unlock fetches the cookie password from the Keychain; macOS asks the user
 // to allow this.
 func (b *chromiumBrowser) Unlock() error {
-	password, err := keyring.Get(b.keychainService, b.keychainAccount)
+	password, err := secrets.Get(b.keychainService, b.keychainAccount)
 	if err != nil {
 		return fmt.Errorf("access to %q in the Keychain was not granted: %w", b.keychainService, err)
 	}
