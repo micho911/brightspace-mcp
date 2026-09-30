@@ -9,6 +9,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -60,6 +61,59 @@ func (c *Client) WhoAmI(ctx context.Context) (Identity, error) {
 	var id Identity
 	err := c.get(ctx, "/d2l/api/lp/"+lpVersion+"/users/whoami", &id)
 	return id, err
+}
+
+// courseOfferingType is the org unit type ID of a course offering. It is
+// built into Brightspace and the same on every instance.
+const courseOfferingType = "3"
+
+// maxPages bounds how many result pages a listing follows.
+const maxPages = 20
+
+// Enrollment is a course the user is enrolled in.
+type Enrollment struct {
+	OrgUnit struct {
+		ID      int64  `json:"Id"`
+		Name    string `json:"Name"`
+		Code    string `json:"Code"`
+		HomeURL string `json:"HomeUrl"`
+	} `json:"OrgUnit"`
+	Access struct {
+		IsActive  bool       `json:"IsActive"`
+		CanAccess bool       `json:"CanAccess"`
+		StartDate *time.Time `json:"StartDate"`
+		EndDate   *time.Time `json:"EndDate"`
+		// RoleName is the user's own role in the course, e.g. "Student".
+		RoleName string `json:"ClasslistRoleName"`
+	} `json:"Access"`
+}
+
+// MyCourses returns the course offerings the user is enrolled in.
+func (c *Client) MyCourses(ctx context.Context) ([]Enrollment, error) {
+	var all []Enrollment
+	bookmark := ""
+	for range maxPages {
+		q := url.Values{"orgUnitTypeId": {courseOfferingType}}
+		if bookmark != "" {
+			q.Set("bookmark", bookmark)
+		}
+		var page struct {
+			PagingInfo struct {
+				Bookmark     string `json:"Bookmark"`
+				HasMoreItems bool   `json:"HasMoreItems"`
+			} `json:"PagingInfo"`
+			Items []Enrollment `json:"Items"`
+		}
+		if err := c.get(ctx, "/d2l/api/lp/"+lpVersion+"/enrollments/myenrollments/?"+q.Encode(), &page); err != nil {
+			return nil, err
+		}
+		all = append(all, page.Items...)
+		if !page.PagingInfo.HasMoreItems || page.PagingInfo.Bookmark == "" {
+			return all, nil
+		}
+		bookmark = page.PagingInfo.Bookmark
+	}
+	return all, nil
 }
 
 func (c *Client) get(ctx context.Context, path string, out any) error {

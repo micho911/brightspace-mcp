@@ -20,5 +20,6 @@ func New(version string, connect Connect) *mcp.Server {
 	s := mcp.NewServer(&mcp.Implementation{Name: Name, Version: version}, nil)
 	addServerInfo(s, version)
 	addWhoAmI(s, connect)
+	addListCourses(s, connect)
 	return s
 }

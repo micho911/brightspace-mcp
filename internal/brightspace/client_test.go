@@ -78,3 +78,36 @@ func TestWhoAmIServerError(t *testing.T) {
 		t.Errorf("err = %v, want a non-session error", err)
 	}
 }
+
+func TestMyCoursesFollowsPages(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/d2l/api/lp/"+lpVersion+"/enrollments/myenrollments/" ||
+			r.URL.Query().Get("orgUnitTypeId") != courseOfferingType {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Query().Get("bookmark") == "" {
+			_, _ = w.Write([]byte(`{"PagingInfo":{"Bookmark":"1001","HasMoreItems":true},"Items":[
+				{"OrgUnit":{"Id":1001,"Name":"Course A","Code":"A","HomeUrl":"/d2l/home/1001"},
+				 "Access":{"IsActive":true,"CanAccess":true,"StartDate":"2026-09-01T00:00:00.000Z","EndDate":null,"ClasslistRoleName":"Student"}}]}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"PagingInfo":{"Bookmark":null,"HasMoreItems":false},"Items":[
+			{"OrgUnit":{"Id":1002,"Name":"Course B","Code":"B","HomeUrl":null},
+			 "Access":{"IsActive":false,"CanAccess":false,"StartDate":null,"EndDate":null,"ClasslistRoleName":null}}]}`))
+	}))
+	defer srv.Close()
+
+	got, err := NewClient(srv.URL, nil).MyCourses(context.Background())
+	if err != nil {
+		t.Fatalf("MyCourses: %v", err)
+	}
+	if len(got) != 2 || got[0].OrgUnit.ID != 1001 || got[1].OrgUnit.ID != 1002 {
+		t.Fatalf("MyCourses = %+v, want courses 1001 and 1002", got)
+	}
+	a := got[0].Access
+	if !a.IsActive || a.RoleName != "Student" || a.StartDate == nil || a.StartDate.Month() != 9 || a.EndDate != nil {
+		t.Errorf("course A access = %+v", a)
+	}
+}

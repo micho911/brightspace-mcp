@@ -6,7 +6,6 @@ to **Done** with the PR number. Decisions and conventions are in
 
 ## Next
 
-- [ ] `feat`: `list_courses` tool (my enrollments: name, code, id, active/dates)
 - [ ] `feat`: `list_announcements` tool (news per course, recent first)
 - [ ] `feat`: `list_upcoming` tool (calendar/due dates across courses)
 - [ ] `feat`: `list_assignments` tool (dropbox folders with due dates, my submission status)
@@ -58,3 +57,4 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] Windows/Linux keychain risks and test plan (#7)
 - [x] `scripts/smoke.py` and live verification steps for local dev (#8)
 - [x] Stable local code signing: `make dev-cert` + `make build` (#9)
+- [x] `list_courses` tool: my course enrollments, active by default, newest first (#10)
