@@ -6,8 +6,6 @@ to **Done** with the PR number. Decisions and conventions are in
 
 ## Next
 
-- [ ] `feat`: load the saved session in `serve` and add a `whoami` tool (clear
-      "run `brightspace-mcp login`" error when there is no session or it expired)
 - [ ] `feat`: `list_courses` tool (my enrollments: name, code, id, active/dates)
 - [ ] `feat`: `list_announcements` tool (news per course, recent first)
 - [ ] `feat`: `list_upcoming` tool (calendar/due dates across courses)
@@ -36,4 +34,6 @@ to **Done** with the PR number. Decisions and conventions are in
 
 - [x] Bootstrap: README, MIT license, .gitignore
 - [x] MCP server skeleton with `get_server_info` (#1)
-- [x] `login` / `logout`: session from the default browser, stored in the keychain
+- [x] `login` / `logout`: session from the default browser, stored in the keychain (#2)
+- [x] CLAUDE.md and BACKLOG.md (#3)
+- [x] `serve` uses the saved session; `whoami` tool with login hints on missing/expired session
