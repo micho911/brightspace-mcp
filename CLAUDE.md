@@ -27,8 +27,10 @@ These are settled. Change them only deliberately, and record the change here.
    `/usr/bin/security`, so the keychain trusts `security`, not our binary.
    Any local program can read the session through it without a prompt. We
    are moving macOS to the native Security API (`keybase/go-keychain`).
-   Users must click **Allow**, never **Always Allow**, for the browser's
-   `Safe Storage` key: "Always Allow" trusts `security` for every program.
+   Until the stable release, `login` says the tool is in beta and recommends
+   **Allow** over **Always Allow** for the browser's `Safe Storage` key
+   ("Always Allow" trusts `security` for every program). Keep the wording a
+   recommendation, not an order.
 4. **Session goes to one origin only.** `ParseBaseURL` reduces input to
    `https://host`. The HTTP client never follows redirects: a redirect, 401,
    or non-JSON response means `ErrSessionExpired`, and the user runs `login`

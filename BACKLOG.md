@@ -47,4 +47,4 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] `login` / `logout`: session from the default browser, stored in the keychain (#2)
 - [x] CLAUDE.md and BACKLOG.md (#3)
 - [x] `serve` uses the saved session; `whoami` tool with login hints on missing/expired session (#4)
-- [x] `login` tells users to click Allow, not Always Allow
+- [x] `login` notes the beta and recommends Allow over Always Allow (#5)
