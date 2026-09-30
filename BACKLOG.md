@@ -41,4 +41,4 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] CLAUDE.md and BACKLOG.md (#3)
 - [x] `serve` uses the saved session; `whoami` tool with login hints on missing/expired session (#4)
 - [x] `login` notes the beta and recommends Allow over Always Allow (#5)
-- [x] Native macOS keychain (`keybase/go-keychain`); items owned by our binary, not `/usr/bin/security`; macOS CI job
+- [x] Native macOS keychain (`keybase/go-keychain`); items owned by our binary, not `/usr/bin/security`; macOS CI job (#6)
