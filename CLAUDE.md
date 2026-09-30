@@ -61,6 +61,9 @@ These are settled. Change them only deliberately, and record the change here.
    via the `Safe Storage` keychain key and the `sqlite3` CLI (read-only,
    `immutable=1`). Other OSes and Firefox/Safari are backlog items; the
    `browser` interface in `internal/auth` is the extension point.
+   macOS first is a starting point, not the goal: the project must become
+   OS-agnostic (BACKLOG), so OS-specific code stays behind interfaces and
+   build tags, and nothing outside them may depend on Apple tooling.
 8. **Distribution (later):** GoReleaser to GitHub Releases, a Homebrew tap, an
    npm wrapper with prebuilt binaries, and MCPB.
 

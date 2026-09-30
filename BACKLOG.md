@@ -13,6 +13,17 @@ to **Done** with the PR number. Decisions and conventions are in
 
 ## Later
 
+- [ ] `chore`: **become OS-agnostic.** Today login, the session store and dev
+      signing are macOS-specific (Keychain partitions/Team ID, Apple
+      Development certificate, Chromium `Safe Storage` key). Before claiming
+      Windows/Linux support (items below):
+      - keep every OS detail behind the existing interfaces (`secretStore`,
+        `browser`) and build tags; no Apple specifics in shared code or tools;
+      - the dev loop (`make build`, `make test`, smoke checks) must work on
+        every OS without an Apple account; signing stays an optional macOS step;
+      - CI runs the tests on Linux, macOS and Windows;
+      - release signing per OS (Developer ID/notarization, Windows
+        Authenticode) moves to GoReleaser.
 - [ ] `feat`: grades tool (my grades only)
 - [ ] `feat`: download/read course files (with size limit)
 - [ ] `feat`: `login` status command (who is logged in, which instance)
