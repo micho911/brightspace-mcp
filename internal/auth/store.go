@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-
-	"github.com/zalando/go-keyring"
 )
 
 // ErrNoSession means no session is saved; the user has to log in.
@@ -22,7 +20,7 @@ func Save(s Session) error {
 	if err != nil {
 		return err
 	}
-	if err := keyring.Set(keyringService, keyringAccount, string(data)); err != nil {
+	if err := secrets.Set(keyringService, keyringAccount, string(data)); err != nil {
 		return fmt.Errorf("save session to keychain: %w", err)
 	}
 	return nil
@@ -30,8 +28,8 @@ func Save(s Session) error {
 
 // Load returns the saved session, or ErrNoSession.
 func Load() (Session, error) {
-	data, err := keyring.Get(keyringService, keyringAccount)
-	if errors.Is(err, keyring.ErrNotFound) {
+	data, err := secrets.Get(keyringService, keyringAccount)
+	if errors.Is(err, errSecretNotFound) {
 		return Session{}, ErrNoSession
 	}
 	if err != nil {
@@ -47,8 +45,8 @@ func Load() (Session, error) {
 
 // Delete removes the saved session. Deleting a missing session is not an error.
 func Delete() error {
-	err := keyring.Delete(keyringService, keyringAccount)
-	if err != nil && !errors.Is(err, keyring.ErrNotFound) {
+	err := secrets.Delete(keyringService, keyringAccount)
+	if err != nil && !errors.Is(err, errSecretNotFound) {
 		return fmt.Errorf("delete session from keychain: %w", err)
 	}
 	return nil

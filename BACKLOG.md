@@ -6,16 +6,9 @@ to **Done** with the PR number. Decisions and conventions are in
 
 ## Next
 
-- [ ] `feat`: native macOS keychain (`keybase/go-keychain`, cgo) instead of
-      `go-keyring`, which shells out to `/usr/bin/security`. Today any local
-      program can read the saved session through `security` without a prompt,
-      and "Always Allow" on the browser key trusts `security` for everyone.
-      With the native API, access is bound to the `brightspace-mcp` binary and
-      the prompt names it. `Save` deletes and re-adds the item so old
-      `security`-owned items get a fresh ACL. Needs a `macos-latest` CI job;
-      Linux/Windows keep `go-keyring`.
 - [ ] `chore`: stable local code signing (self-signed cert, `make build`) so
-      the keychain does not re-prompt after every dev rebuild
+      the keychain does not re-prompt after every dev rebuild (ad-hoc builds
+      are trusted by cdhash). Release signing/notarization comes with GoReleaser.
 - [ ] `feat`: `list_courses` tool (my enrollments: name, code, id, active/dates)
 - [ ] `feat`: `list_announcements` tool (news per course, recent first)
 - [ ] `feat`: `list_upcoming` tool (calendar/due dates across courses)
@@ -48,3 +41,4 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] CLAUDE.md and BACKLOG.md (#3)
 - [x] `serve` uses the saved session; `whoami` tool with login hints on missing/expired session (#4)
 - [x] `login` notes the beta and recommends Allow over Always Allow (#5)
+- [x] Native macOS keychain (`keybase/go-keychain`); items owned by our binary, not `/usr/bin/security`; macOS CI job

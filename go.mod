@@ -3,6 +3,7 @@ module github.com/micho911/brightspace-mcp
 go 1.26
 
 require (
+	github.com/keybase/go-keychain v0.0.1
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/zalando/go-keyring v0.2.8
 )
