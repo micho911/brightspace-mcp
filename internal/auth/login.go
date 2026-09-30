@@ -41,7 +41,8 @@ func Login(ctx context.Context, baseURL string, verify Verify, out io.Writer) (S
 	}
 
 	fmt.Fprintf(out, "Reading your Brightspace session from %s.\n"+
-		"Your computer may ask to allow access to the browser's saved data: click Allow.\n", b.Name())
+		"Your computer may ask to allow access to the browser's saved data: click Allow,\n"+
+		"not Always Allow. That keeps other programs from reading your browser's cookies.\n", b.Name())
 	if err := b.Unlock(); err != nil {
 		return Session{}, err
 	}
