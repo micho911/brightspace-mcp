@@ -16,7 +16,7 @@ const enrollmentsJSON = `{"PagingInfo":{"Bookmark":null,"HasMoreItems":false},"I
 	 "Access":{"IsActive":true,"CanAccess":true,"StartDate":"2025-02-01T00:00:00.000Z","EndDate":"2025-06-30T00:00:00.000Z","ClasslistRoleName":"Student"}},
 	{"OrgUnit":{"Id":2,"Name":"Undated","Code":"UND","HomeUrl":"/d2l/home/2"},
 	 "Access":{"IsActive":true,"CanAccess":true,"StartDate":null,"EndDate":null,"ClasslistRoleName":"Student"}},
-	{"OrgUnit":{"Id":3,"Name":"New","Code":"NEW","HomeUrl":"/d2l/home/3"},
+	{"OrgUnit":{"Id":3,"Name":"New","Code":"NEW","HomeUrl":"https://brightspace.example/d2l/home/3"},
 	 "Access":{"IsActive":true,"CanAccess":true,"StartDate":"2026-09-01T00:00:00.000Z","EndDate":null,"ClasslistRoleName":"Student"}},
 	{"OrgUnit":{"Id":4,"Name":"Closed","Code":"CLO","HomeUrl":"/d2l/home/4"},
 	 "Access":{"IsActive":false,"CanAccess":false,"StartDate":"2024-09-01T00:00:00.000Z","EndDate":null,"ClasslistRoleName":"Student"}}]}`
@@ -64,8 +64,13 @@ func TestListCourses(t *testing.T) {
 	c := list.Courses[0]
 	if c.Name != "New" || c.Code != "NEW" || !c.Active || c.Role != "Student" ||
 		c.StartDate != "2026-09-01T00:00:00Z" || c.EndDate != "" ||
-		!strings.HasPrefix(c.URL, "http://127.0.0.1") || !strings.HasSuffix(c.URL, "/d2l/home/3") {
+		c.URL != "https://brightspace.example/d2l/home/3" {
 		t.Errorf("course = %+v", c)
+	}
+	// A path is resolved against the instance address.
+	if u := list.Courses[1].URL; !strings.HasPrefix(u, "http://127.0.0.1") || !strings.HasSuffix(u, "/d2l/home/1") ||
+		strings.Count(u, "http") != 1 {
+		t.Errorf("course URL from a path = %q", u)
 	}
 }
 

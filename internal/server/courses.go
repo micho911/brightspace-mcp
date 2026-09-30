@@ -3,6 +3,7 @@ package server
 import (
 	"cmp"
 	"context"
+	"net/url"
 	"slices"
 	"time"
 
@@ -66,7 +67,7 @@ func addListCourses(s *mcp.Server, connect Connect) {
 				Role:      e.Access.RoleName,
 			}
 			if e.OrgUnit.HomeURL != "" {
-				course.URL = c.BaseURL() + e.OrgUnit.HomeURL
+				course.URL = resolveURL(c.BaseURL(), e.OrgUnit.HomeURL)
 			}
 			list.Courses = append(list.Courses, course)
 		}
@@ -83,6 +84,20 @@ func addListCourses(s *mcp.Server, connect Connect) {
 		})
 		return nil, list, nil
 	})
+}
+
+// resolveURL resolves ref against base. Brightspace returns some links as
+// full URLs and others as paths on the instance.
+func resolveURL(base, ref string) string {
+	b, err := url.Parse(base)
+	if err != nil {
+		return ""
+	}
+	r, err := url.Parse(ref)
+	if err != nil {
+		return ""
+	}
+	return b.ResolveReference(r).String()
 }
 
 func formatTime(t *time.Time) string {
