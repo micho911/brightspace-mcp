@@ -28,7 +28,12 @@ These are settled. Change them only deliberately, and record the change here.
      it, trust `security` for every program. The keychain item's access list
      names our binary. macOS builds need `CGO_ENABLED=1`; without it the build
      fails on purpose (`secrets_darwin_nocgo.go`).
-   - **Linux/Windows:** `zalando/go-keyring`.
+   - **Linux/Windows:** `zalando/go-keyring` (Secret Service / Credential
+     Manager, called directly). **Untested, and `login` is macOS-only for
+     now.** Neither platform has per-app access control, so any program
+     running as the user can read the session. Windows caps a secret at
+     2560 bytes. Don't claim support before testing on real machines
+     (BACKLOG).
    - All access goes through `secretStore` in `internal/auth/secrets.go`, and
      tests swap in an in-memory store.
    - Only an item's creator may delete it or change its access list, so
