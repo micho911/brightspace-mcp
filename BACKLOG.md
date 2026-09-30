@@ -58,3 +58,4 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] `scripts/smoke.py` and live verification steps for local dev (#8)
 - [x] Stable local code signing: `make dev-cert` + `make build` (#9)
 - [x] `list_courses` tool: my course enrollments, active by default, newest first (#10)
+- [x] Fix doubled course URLs: resolve `HomeUrl` against the instance (#11)
