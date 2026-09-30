@@ -59,3 +59,4 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] Stable local code signing: `make dev-cert` + `make build` (#9)
 - [x] `list_courses` tool: my course enrollments, active by default, newest first (#10)
 - [x] Fix doubled course URLs: resolve `HomeUrl` against the instance (#11)
+- [x] Sign dev builds with an Apple Development certificate (Team ID partition); drop the self-signed `make dev-cert` (#12)
