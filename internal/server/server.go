@@ -36,5 +36,6 @@ func New(version string, connect Connect) *mcp.Server {
 	addGetCourseInfo(s, connect)
 	addListMyGroups(s, connect)
 	addGetUnreadCounts(s, connect)
+	addListAwards(s, connect)
 	return s
 }
