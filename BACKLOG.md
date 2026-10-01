@@ -6,13 +6,17 @@ to **Done** with the PR number. Decisions and conventions are in
 
 ## Next
 
-- [ ] `docs`: allow a scoped, short-lived token for D2L's own services (decision 4):
-      session cookies still go only to the instance; the token only to the
-      `https://*.brightspace.com` endpoint the instance names (e.g. the
-      Activity Feed, `prd.activityfeed.<region>.brightspace.com`)
 - [ ] `feat`: `list_activity_feed` tool (course Activity Feed posts; most AU
-      courses post announcements here, not in News). Articles live at
-      `/api/v1/d2l:orgUnit:<id>/article/<uuid>` on the feed host
+      courses post announcements here, not in News). Verified on AU:
+      - the course page `/d2l/home/<id>` names the feed host in the Activity
+        Feed widget's `api-endpoint` (`https://prd.activityfeed.<region>.brightspace.com/`);
+      - mint the token from the cookies (decision 4), then
+        `GET <feed host>/api/v1/d2l:orgUnit:<id>/article/` (trailing slash);
+      - the answer is an Activity Streams page (10 `Create` activities, each
+        with an `Article`: HTML `content`, `replies`, `attachment`,
+        `published`) and a `next` link; `actor` is only a URL, not a name;
+      - comment counts: `.../article/<uuid>/comment/count`;
+      - a 403 means no feed access for that course, not an expired session
 - [ ] `feat`: `list_upcoming` tool (calendar/due dates across courses)
 - [ ] `feat`: `list_assignments` tool (dropbox folders with due dates, my submission status)
 - [ ] `feat`: `get_course_content` tool (content modules/topics tree)
@@ -78,3 +82,4 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] Fix doubled course URLs: resolve `HomeUrl` against the instance (#11)
 - [x] Sign dev builds with an Apple Development certificate (Team ID partition); drop the self-signed `make dev-cert` (#12)
 - [x] `list_announcements` tool: News per course, newest first (#14)
+- [x] Decision 4 allows a short-lived in-memory token for the Activity Feed host the instance names; Activity Feed verified on AU (PR pending)

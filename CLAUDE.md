@@ -48,10 +48,24 @@ These are settled. Change them only deliberately, and record the change here.
      certificate (`make build`); releases get Developer ID with GoReleaser.
    - During the beta, `login` recommends **Allow** over **Always Allow**.
      Keep that wording a recommendation, not an order.
-4. **Session goes to one origin only.** `ParseBaseURL` reduces input to
-   `https://host`. The HTTP client never follows redirects: a redirect, 401,
-   or non-JSON response means `ErrSessionExpired`, and the user runs `login`
-   again.
+4. **Session goes to one origin only, with one named exception.**
+   `ParseBaseURL` reduces input to `https://host`. The HTTP client never
+   follows redirects: a redirect, 401, or non-JSON response means
+   `ErrSessionExpired`, and the user runs `login` again.
+   - **Exception, the Activity Feed:** it lives on a separate D2L host and
+     takes a bearer token, not cookies. We mint a short-lived token (about
+     1 hour, kept in memory only, never stored, logged or returned) from the
+     session at the instance's own token endpoint
+     (`/d2l/lp/auth/xsrf-tokens`, then `/d2l/lp/auth/oauth2/token`). It goes
+     only to the `https://*.brightspace.com` host that the instance's course
+     page names (the `api-endpoint` of its Activity Feed widget), never
+     follows a redirect, and is sent to no other host. Cookies still go to
+     the instance only.
+   - **Known limit:** the token has scope `*:*:*`, because that is what D2L's
+     own page requests. It is broader than the feed. Nothing shows that a
+     narrower scope is accepted; do not assume one.
+   - A 403 from the feed host means no access to that course's feed (or no
+     feed), not an expired session.
 5. **Read-only first.** Student read tools come first. Tools that write, and
    teacher tools, come later and are opt-in behind flags. Every tool sets
    `ReadOnlyHint` correctly.
