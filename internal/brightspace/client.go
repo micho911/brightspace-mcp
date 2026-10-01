@@ -46,6 +46,9 @@ type Client struct {
 	mu       sync.Mutex
 	token    string
 	tokenExp time.Time
+
+	// The user's own ID, from whoami, once known.
+	userID string
 }
 
 // NewClient returns a client that sends the session cookies to baseURL only.
@@ -80,6 +83,25 @@ func (c *Client) WhoAmI(ctx context.Context) (Identity, error) {
 	var id Identity
 	err := c.get(ctx, "/d2l/api/lp/"+lpVersion+"/users/whoami", &id)
 	return id, err
+}
+
+// UserID returns the logged-in user's ID. It asks Brightspace once per
+// client; tools use it to keep to the user's own data.
+func (c *Client) UserID(ctx context.Context) (string, error) {
+	c.mu.Lock()
+	id := c.userID
+	c.mu.Unlock()
+	if id != "" {
+		return id, nil
+	}
+	who, err := c.WhoAmI(ctx)
+	if err != nil {
+		return "", err
+	}
+	c.mu.Lock()
+	c.userID = who.Identifier
+	c.mu.Unlock()
+	return who.Identifier, nil
 }
 
 // courseOfferingType is the org unit type ID of a course offering. It is
