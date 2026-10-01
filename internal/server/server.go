@@ -25,5 +25,6 @@ func New(version string, connect Connect) *mcp.Server {
 	addListActivityFeed(s, connect)
 	addListUpcoming(s, connect)
 	addListAssignments(s, connect)
+	addGetAssignment(s, connect)
 	return s
 }
