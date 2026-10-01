@@ -9,7 +9,6 @@ to **Done** with the PR number. Decisions and conventions are in
 Read-only API parity for a student (stacked PRs, in this order). Routes that
 need teacher or admin rights are out of scope and listed under Later.
 
-- [ ] `feat`: `list_upcoming` tool (calendar events across courses)
 - [ ] `feat`: `list_assignments` tool (dropbox folders, due dates, my submission status)
 - [ ] `feat`: `get_assignment` tool (instructions, attachments, my submissions, feedback and score)
 - [ ] `feat`: `get_course_content` tool (module/topic tree)
@@ -94,3 +93,4 @@ need teacher or admin rights are out of scope and listed under Later.
 - [x] `list_announcements` tool: News per course, newest first (#14)
 - [x] Decision 4 allows a short-lived in-memory token for the Activity Feed host the instance names; Activity Feed verified on AU (#15)
 - [x] `list_activity_feed` tool: a course's Activity Feed posts, newest first; token minted in memory and sent only to the feed host the course page names; every tool now has a test for `ReadOnlyHint` (#16)
+- [x] `list_upcoming` tool: calendar events across active courses, soonest first (#18)
