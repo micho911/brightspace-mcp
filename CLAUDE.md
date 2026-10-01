@@ -71,6 +71,13 @@ These are settled. Change them only deliberately, and record the change here.
    `ReadOnlyHint` correctly.
 6. **Privacy by default (GDPR).** Return only what the task needs. Roster or
    other students' personal data is off unless explicitly enabled.
+   - **Discussions:** `read_discussion_posts` never reads or returns other
+     people's names (the client has no field for them). The user's own posts
+     say "me"; everyone else is "Participant A, B, …", stable within one
+     result. A teacher's reply therefore looks like any participant's until
+     the roster opt-in exists (BACKLOG). The same goes for quiz attempts:
+     only the user's own, filtered by user ID in code as well as in the
+     request.
 7. **Browser support, macOS first.** Chromium browsers (Brave, Chrome, Edge)
    via the `Safe Storage` keychain key and the `sqlite3` CLI (read-only,
    `immutable=1`). Other OSes and Firefox/Safari are backlog items; the
