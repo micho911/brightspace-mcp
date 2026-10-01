@@ -35,6 +35,33 @@ type TOCTopic struct {
 	ToolItemID FlexText `json:"ToolItemId"`
 }
 
+// Topic is one content item in full.
+type Topic struct {
+	ID             int64      `json:"Id"`
+	Title          string     `json:"Title"`
+	Description    RichText   `json:"Description"`
+	URL            string     `json:"Url"`
+	ParentModuleID int64      `json:"ParentModuleId"`
+	StartDate      *time.Time `json:"StartDate"`
+	EndDate        *time.Time `json:"EndDate"`
+	DueDate        *time.Time `json:"DueDate"`
+	IsHidden       bool       `json:"IsHidden"`
+	IsLocked       bool       `json:"IsLocked"`
+	IsBroken       bool       `json:"IsBroken"`
+	// TopicType is 1 for a file, 3 for a link, 5 to 8 for SCORM.
+	TopicType        FlexText   `json:"TopicType"`
+	ActivityType     FlexText   `json:"ActivityType"`
+	ToolItemID       FlexText   `json:"ToolItemId"`
+	LastModifiedDate *time.Time `json:"LastModifiedDate"`
+}
+
+// ContentTopic returns one content item.
+func (c *Client) ContentTopic(ctx context.Context, orgUnitID, topicID int64) (Topic, error) {
+	var t Topic
+	err := c.get(ctx, "/d2l/api/le/"+leVersion+"/"+strconv.FormatInt(orgUnitID, 10)+"/content/topics/"+strconv.FormatInt(topicID, 10), &t)
+	return t, err
+}
+
 // ContentTOC returns the course's table of contents: modules, sub-modules
 // and topics, in course order.
 func (c *Client) ContentTOC(ctx context.Context, orgUnitID int64) ([]TOCModule, error) {
