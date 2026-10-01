@@ -56,6 +56,16 @@ func TestGetAllFollowsBookmarks(t *testing.T) {
 	}
 }
 
+func TestGetAllAcceptsBareArray(t *testing.T) {
+	c := serve(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, `[1,2,3]`)
+	})
+	got, err := getAll[int](context.Background(), c, "/list/", nil)
+	if err != nil || !slices.Equal(got, []int{1, 2, 3}) {
+		t.Errorf("getAll = %v, %v, want [1 2 3]", got, err)
+	}
+}
+
 func TestGetAllRefusesForeignNextLink(t *testing.T) {
 	c := serve(t, func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, `{"Next":"https://evil.example/steal","Objects":[1]}`)

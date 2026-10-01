@@ -1,7 +1,9 @@
 package brightspace
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -27,9 +29,21 @@ func getAll[T any](ctx context.Context, c *Client, path string, q url.Values) ([
 		next += "?" + q.Encode()
 	}
 	for range maxPages {
-		var page listPage[T]
-		if err := c.get(ctx, next, &page); err != nil {
+		var raw json.RawMessage
+		if err := c.get(ctx, next, &raw); err != nil {
 			return nil, err
+		}
+		// Some routes answer with a bare array and no paging information.
+		if t := bytes.TrimSpace(raw); len(t) > 0 && t[0] == '[' {
+			var items []T
+			if err := json.Unmarshal(t, &items); err != nil {
+				return nil, fmt.Errorf("GET %s: decode response: %w", path, err)
+			}
+			return append(all, items...), nil
+		}
+		var page listPage[T]
+		if err := json.Unmarshal(raw, &page); err != nil {
+			return nil, fmt.Errorf("GET %s: decode response: %w", path, err)
 		}
 		all = append(all, page.Objects...)
 		all = append(all, page.Items...)
