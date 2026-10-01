@@ -26,5 +26,6 @@ func New(version string, connect Connect) *mcp.Server {
 	addListUpcoming(s, connect)
 	addListAssignments(s, connect)
 	addGetAssignment(s, connect)
+	addGetCourseContent(s, connect)
 	return s
 }
