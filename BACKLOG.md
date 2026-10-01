@@ -9,7 +9,6 @@ to **Done** with the PR number. Decisions and conventions are in
 Read-only API parity for a student (stacked PRs, in this order). Routes that
 need teacher or admin rights are out of scope and listed under Later.
 
-- [ ] `feat`: `read_discussion_posts` tool (posts in a topic; other people's names hidden, decision 6)
 - [ ] `feat`: `get_course_info` tool (description, dates, semester, department)
 - [ ] `feat`: `list_my_groups` tool (my groups and sections)
 - [ ] `feat`: `get_unread_counts` tool (unread discussions, feedback, quizzes to attempt)
@@ -18,6 +17,8 @@ need teacher or admin rights are out of scope and listed under Later.
 
 ## Later
 
+- [ ] `feat`: show teachers' names in discussion posts (needs a roles lookup that
+      does not hand the roster to the assistant, behind the roster opt-in)
 - [ ] `feat`: final grades across all courses in one call (needs a live check that
       `/le/{v}/grades/final/values/myGradeValues/` says which course each value belongs to)
 - [ ] `feat`: grade weights and categories in `get_grades` (`GradeObject.Weight` needs a newer `le` API version than 1.74)
@@ -99,3 +100,4 @@ need teacher or admin rights are out of scope and listed under Later.
 - [x] `get_grades` tool: my grades, points, percent, comments and final grade in a course (#25)
 - [x] `list_quizzes` tool: quizzes with dates, attempts allowed and my own attempts; scores only once published (#26)
 - [x] `list_discussion_topics` tool: forums and topics with dates and lock state (#28)
+- [x] `read_discussion_posts` tool: newest posts in a topic; own posts as "me", everyone else as Participant A, B, … (decision 6) (#29)
