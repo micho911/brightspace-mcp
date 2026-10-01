@@ -6,17 +6,6 @@ to **Done** with the PR number. Decisions and conventions are in
 
 ## Next
 
-- [ ] `feat`: `list_activity_feed` tool (course Activity Feed posts; most AU
-      courses post announcements here, not in News). Verified on AU:
-      - the course page `/d2l/home/<id>` names the feed host in the Activity
-        Feed widget's `api-endpoint` (`https://prd.activityfeed.<region>.brightspace.com/`);
-      - mint the token from the cookies (decision 4), then
-        `GET <feed host>/api/v1/d2l:orgUnit:<id>/article/` (trailing slash);
-      - the answer is an Activity Streams page (10 `Create` activities, each
-        with an `Article`: HTML `content`, `replies`, `attachment`,
-        `published`) and a `next` link; `actor` is only a URL, not a name;
-      - comment counts: `.../article/<uuid>/comment/count`;
-      - a 403 means no feed access for that course, not an expired session
 - [ ] `feat`: `list_upcoming` tool (calendar/due dates across courses)
 - [ ] `feat`: `list_assignments` tool (dropbox folders with due dates, my submission status)
 - [ ] `feat`: `get_course_content` tool (content modules/topics tree)
@@ -34,6 +23,13 @@ to **Done** with the PR number. Decisions and conventions are in
       - CI runs the tests on Linux, macOS and Windows;
       - release signing per OS (Developer ID/notarization, Windows
         Authenticode) moves to GoReleaser.
+- [ ] `chore`: check the Activity Feed attachment shape on a post that has an
+      attachment (the sample feed had none, so attachment names are best-effort)
+- [ ] `feat`: show who posted in the Activity Feed (`actor` is only a URL to
+      another D2L service, so it needs a lookup on a second host)
+- [ ] `chore`: `login` feels slow after signing in (Chromium writes new
+      cookies to disk in batches and we read the on-disk database); find out
+      how long it takes and say so in the message, or read them sooner
 - [ ] `feat`: grades tool (my grades only)
 - [ ] `feat`: download/read course files (with size limit)
 - [ ] `feat`: `login` status command (who is logged in, which instance)
@@ -83,3 +79,4 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] Sign dev builds with an Apple Development certificate (Team ID partition); drop the self-signed `make dev-cert` (#12)
 - [x] `list_announcements` tool: News per course, newest first (#14)
 - [x] Decision 4 allows a short-lived in-memory token for the Activity Feed host the instance names; Activity Feed verified on AU (#15)
+- [x] `list_activity_feed` tool: a course's Activity Feed posts, newest first; token minted in memory and sent only to the feed host the course page names; every tool now has a test for `ReadOnlyHint` (#16)
