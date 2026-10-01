@@ -76,7 +76,7 @@ need teacher or admin rights are out of scope and listed under Later.
 
 ## Done
 
-- [x] Client groundwork: shared pager for both Brightspace page shapes, `ErrForbidden` (a 403 that is not the login page is "no access", not "session expired"), shared course error helpers
+- [x] Client groundwork: shared pager for both Brightspace page shapes, `ErrForbidden` (a 403 that is not the login page is "no access", not "session expired"), shared course error helpers (#17)
 
 - [x] Bootstrap: README, MIT license, .gitignore
 - [x] MCP server skeleton with `get_server_info` (#1)
