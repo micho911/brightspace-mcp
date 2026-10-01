@@ -82,4 +82,4 @@ to **Done** with the PR number. Decisions and conventions are in
 - [x] Fix doubled course URLs: resolve `HomeUrl` against the instance (#11)
 - [x] Sign dev builds with an Apple Development certificate (Team ID partition); drop the self-signed `make dev-cert` (#12)
 - [x] `list_announcements` tool: News per course, newest first (#14)
-- [x] Decision 4 allows a short-lived in-memory token for the Activity Feed host the instance names; Activity Feed verified on AU (PR pending)
+- [x] Decision 4 allows a short-lived in-memory token for the Activity Feed host the instance names; Activity Feed verified on AU (#15)
