@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -84,6 +85,56 @@ func read(t *testing.T, bs Connect, id int, extra map[string]any) CourseFileText
 		args[k] = v
 	}
 	return fileText(t, callReadCourseFile(t, bs, args))
+}
+
+// minimalPDF builds a one-page PDF whose text layer is the given lines.
+func minimalPDF(lines ...string) []byte {
+	var content strings.Builder
+	content.WriteString("BT /F1 12 Tf 14 TL 20 150 Td ")
+	for _, l := range lines {
+		content.WriteString("(" + l + ") Tj T* ")
+	}
+	content.WriteString("ET")
+	objs := []string{
+		"<< /Type /Catalog /Pages 2 0 R >>",
+		"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+		"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 200] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+		fmt.Sprintf("<< /Length %d >>\nstream\n%s\nendstream", content.Len(), content.String()),
+		"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+	}
+	var buf bytes.Buffer
+	buf.WriteString("%PDF-1.4\n")
+	offsets := make([]int, len(objs))
+	for i, o := range objs {
+		offsets[i] = buf.Len()
+		fmt.Fprintf(&buf, "%d 0 obj\n%s\nendobj\n", i+1, o)
+	}
+	xref := buf.Len()
+	fmt.Fprintf(&buf, "xref\n0 %d\n0000000000 65535 f \n", len(objs)+1)
+	for _, off := range offsets {
+		fmt.Fprintf(&buf, "%010d 00000 n \n", off)
+	}
+	fmt.Fprintf(&buf, "trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n", len(objs)+1, xref)
+	return buf.Bytes()
+}
+
+func TestReadCourseFilePDF(t *testing.T) {
+	bs := fakeFiles(t, map[string]served{
+		"/topics/1/file": {name: "paper.pdf", contentType: "application/pdf", body: minimalPDF("Hello PDF", "Second line")},
+		"/topics/2/file": {name: "scan.pdf", contentType: "application/pdf", body: minimalPDF()},
+		"/topics/3/file": {name: "broken.pdf", contentType: "application/pdf", body: []byte("%PDF-1.4\n1 0 obj\n<< /Broken")},
+	})
+
+	f := read(t, bs, 1, nil)
+	if !f.Readable || !strings.HasPrefix(f.Text, "--- Page 1 ---\n") || !strings.Contains(f.Text, "Hello PDF") || !strings.Contains(f.Text, "Second line") {
+		t.Errorf("pdf = %+v", f)
+	}
+	if f := read(t, bs, 2, nil); f.Readable || f.Note == "" {
+		t.Errorf("pdf without text = %+v, want not readable with a note", f)
+	}
+	if f := read(t, bs, 3, nil); f.Readable || f.Note == "" {
+		t.Errorf("broken pdf = %+v, want not readable (and no crash)", f)
+	}
 }
 
 func TestReadCourseFile(t *testing.T) {
