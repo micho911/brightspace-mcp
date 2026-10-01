@@ -142,12 +142,12 @@ func (c *Client) get(ctx context.Context, path string, out any) error {
 	return c.doJSON(ctx, http.MethodGet, path, nil, nil, out)
 }
 
-// doJSON sends a request to the instance with the session cookies and
-// decodes the JSON answer into out.
-func (c *Client) doJSON(ctx context.Context, method, path string, header http.Header, body io.Reader, out any) error {
+// send makes a request to the instance with the session cookies. The caller
+// closes the response body.
+func (c *Client) send(ctx context.Context, method, path string, header http.Header, body io.Reader) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, method, c.baseURL+path, body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.Header.Set("Accept", "application/json")
 	for k, v := range header {
@@ -156,10 +156,19 @@ func (c *Client) doJSON(ctx context.Context, method, path string, header http.He
 	for _, cookie := range c.cookies {
 		req.AddCookie(cookie)
 	}
-
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return fmt.Errorf("%s %s: %w", method, path, err)
+		return nil, fmt.Errorf("%s %s: %w", method, path, err)
+	}
+	return resp, nil
+}
+
+// doJSON sends a request to the instance with the session cookies and
+// decodes the JSON answer into out.
+func (c *Client) doJSON(ctx context.Context, method, path string, header http.Header, body io.Reader, out any) error {
+	resp, err := c.send(ctx, method, path, header, body)
+	if err != nil {
+		return err
 	}
 	defer resp.Body.Close()
 
