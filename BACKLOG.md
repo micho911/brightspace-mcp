@@ -9,7 +9,6 @@ to **Done** with the PR number. Decisions and conventions are in
 Read-only API parity for a student (stacked PRs, in this order). Routes that
 need teacher or admin rights are out of scope and listed under Later.
 
-- [ ] `feat`: `list_my_groups` tool (my groups and sections)
 - [ ] `feat`: `get_unread_counts` tool (unread discussions, feedback, quizzes to attempt)
 - [ ] `feat`: `list_awards` tool (my badges and certificates)
 - [ ] `docs`: README tool list and a final parity review
@@ -101,3 +100,4 @@ need teacher or admin rights are out of scope and listed under Later.
 - [x] `list_discussion_topics` tool: forums and topics with dates and lock state (#28)
 - [x] `read_discussion_posts` tool: newest posts in a topic; own posts as "me", everyone else as Participant A, B, … (decision 6) (#29)
 - [x] `get_course_info` tool: course description, dates, semester and department (#30)
+- [x] `list_my_groups` tool: my groups (category, member count only) and sections; pager now also accepts bare-array answers (#31)
