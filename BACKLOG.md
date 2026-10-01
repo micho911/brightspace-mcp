@@ -9,7 +9,6 @@ to **Done** with the PR number. Decisions and conventions are in
 Read-only API parity for a student (stacked PRs, in this order). Routes that
 need teacher or admin rights are out of scope and listed under Later.
 
-- [ ] `feat`: `read_course_file`: read PDF text (needs a pure-Go PDF library: a new dependency, so its own PR)
 - [ ] `feat`: `get_grades` tool (my grades and final grade in a course)
 - [ ] `feat`: `list_quizzes` tool (quizzes, dates, my attempts and scores)
 - [ ] `feat`: discussions: `list_discussion_topics`, `read_discussion_posts` (other people's names hidden)
@@ -95,3 +94,4 @@ need teacher or admin rights are out of scope and listed under Later.
 - [x] `get_course_content` tool: module/topic tree as a flat, depth-limited list (#21)
 - [x] `get_content_topic` tool: one content item's description, dates, file name or link, and the linked assignment/quiz/discussion ID (#22)
 - [x] `read_course_file` tool: text of a course file (text, HTML, .docx, .pptx), 25 MB limit, in memory only (#23)
+- [x] `read_course_file` reads PDF text (`ledongthuc/pdf`, decision 9); scanned PDFs are reported as unreadable (#24)

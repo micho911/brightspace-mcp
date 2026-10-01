@@ -10,6 +10,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/ledongthuc/pdf"
 )
 
 // maxOfficeXML caps how much of one XML part of an Office file is read, so a
@@ -33,6 +35,8 @@ func extractText(name, contentType string, data []byte) (text string, ok bool) {
 	switch {
 	case ext == ".html" || ext == ".htm" || (ext == "" && contentType == "text/html"):
 		return htmlToText(strings.ToValidUTF8(string(data), "")), true
+	case ext == ".pdf" || bytes.HasPrefix(data, []byte("%PDF-")):
+		return pdfText(data)
 	case ext == ".docx":
 		return docxText(data)
 	case ext == ".pptx":
@@ -49,6 +53,42 @@ func isKnownBinaryExt(ext string) bool {
 		return true
 	}
 	return false
+}
+
+const (
+	// maxPDFPages and maxExtractChars bound the work done on a huge PDF; the
+	// tool cuts the text to the caller's limit afterwards.
+	maxPDFPages     = 300
+	maxExtractChars = 400000
+)
+
+// pdfText reads the text layer of a PDF, a "--- Page N ---" heading before
+// each page. A scanned PDF has no text layer and gives ok=false. The parser
+// can panic on a malformed file, which counts as not readable.
+func pdfText(data []byte) (text string, ok bool) {
+	defer func() {
+		if recover() != nil {
+			text, ok = "", false
+		}
+	}()
+	r, err := pdf.NewReader(bytes.NewReader(data), int64(len(data)))
+	if err != nil {
+		return "", false
+	}
+	var b strings.Builder
+	for i := 1; i <= min(r.NumPage(), maxPDFPages) && b.Len() < maxExtractChars; i++ {
+		page := r.Page(i)
+		if page.V.IsNull() {
+			continue
+		}
+		t, err := page.GetPlainText(nil)
+		if err != nil || strings.TrimSpace(t) == "" {
+			continue
+		}
+		b.WriteString("--- Page " + strconv.Itoa(i) + " ---\n" + strings.TrimSpace(t) + "\n\n")
+	}
+	text = strings.TrimSpace(b.String())
+	return text, text != ""
 }
 
 func openZip(data []byte) (*zip.Reader, bool) {
