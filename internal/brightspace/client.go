@@ -49,6 +49,9 @@ type Client struct {
 
 	// The user's own ID, from whoami, once known.
 	userID string
+
+	// The latest API version per product code, once asked (see versions.go).
+	versions map[string]string
 }
 
 // NewClient returns a client that sends the session cookies to baseURL only.
