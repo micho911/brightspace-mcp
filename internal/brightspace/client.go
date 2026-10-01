@@ -23,6 +23,10 @@ var ErrSessionExpired = errors.New("brightspace session expired or invalid")
 // see it.
 var ErrNotFound = errors.New("not found in Brightspace")
 
+// ErrForbidden means the session is valid but the user may not use this part
+// of Brightspace, e.g. the tool is turned off in the course.
+var ErrForbidden = errors.New("not allowed in Brightspace")
+
 // API versions used for requests: lp is the Learning Platform (users,
 // enrollments), le the Learning Environment (course tools such as news).
 const (
@@ -105,30 +109,8 @@ type Enrollment struct {
 
 // MyCourses returns the course offerings the user is enrolled in.
 func (c *Client) MyCourses(ctx context.Context) ([]Enrollment, error) {
-	var all []Enrollment
-	bookmark := ""
-	for range maxPages {
-		q := url.Values{"orgUnitTypeId": {courseOfferingType}}
-		if bookmark != "" {
-			q.Set("bookmark", bookmark)
-		}
-		var page struct {
-			PagingInfo struct {
-				Bookmark     string `json:"Bookmark"`
-				HasMoreItems bool   `json:"HasMoreItems"`
-			} `json:"PagingInfo"`
-			Items []Enrollment `json:"Items"`
-		}
-		if err := c.get(ctx, "/d2l/api/lp/"+lpVersion+"/enrollments/myenrollments/?"+q.Encode(), &page); err != nil {
-			return nil, err
-		}
-		all = append(all, page.Items...)
-		if !page.PagingInfo.HasMoreItems || page.PagingInfo.Bookmark == "" {
-			return all, nil
-		}
-		bookmark = page.PagingInfo.Bookmark
-	}
-	return all, nil
+	q := url.Values{"orgUnitTypeId": {courseOfferingType}}
+	return getAll[Enrollment](ctx, c, "/d2l/api/lp/"+lpVersion+"/enrollments/myenrollments/", q)
 }
 
 // NewsItem is an announcement in a course.
@@ -187,9 +169,14 @@ func (c *Client) doJSON(ctx context.Context, method, path string, header http.He
 	if resp.StatusCode == http.StatusUnauthorized || (resp.StatusCode >= 300 && resp.StatusCode < 400) {
 		return ErrSessionExpired
 	}
+	mediaType, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 	// Without a valid session Brightspace serves an HTML page (a 403, or a
-	// 200 login stub) instead of JSON.
-	if mediaType, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type")); mediaType != "application/json" {
+	// 200 login stub) instead of JSON. A 403 that is not HTML is the API
+	// refusing this user, not a lost session.
+	if resp.StatusCode == http.StatusForbidden && mediaType != "text/html" {
+		return fmt.Errorf("%s %s: %w", method, path, ErrForbidden)
+	}
+	if mediaType != "application/json" {
 		return ErrSessionExpired
 	}
 	if resp.StatusCode != http.StatusOK {

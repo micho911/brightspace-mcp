@@ -99,3 +99,14 @@ func TestTruncate(t *testing.T) {
 		t.Errorf("truncate = %q, %v", got, cut)
 	}
 }
+
+func TestListAnnouncementsForbidden(t *testing.T) {
+	bs := fakeBrightspace(t, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusForbidden)
+	})
+	msg := errorText(t, callListAnnouncements(t, bs, map[string]any{"courseId": 1001}))
+	if !strings.Contains(msg, "does not let the user see announcements in course 1001") || strings.Contains(msg, "login") {
+		t.Errorf("error %q should say access is refused, not that the session expired", msg)
+	}
+}
