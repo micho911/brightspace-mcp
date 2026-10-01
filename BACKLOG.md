@@ -6,13 +6,25 @@ to **Done** with the PR number. Decisions and conventions are in
 
 ## Next
 
-Read-only API parity for a student (stacked PRs, in this order). Routes that
-need teacher or admin rights are out of scope and listed under Later.
+The student-side read-only API now has a tool for each area (see Done). Every
+tool was built from the API docs and fake answers only: **each needs a live
+check against a real instance** (the PR descriptions say what to look for).
 
-- [ ] `docs`: README tool list and a final parity review
+- [ ] `chore`: live-verify every tool on AU's Brightspace and fix what differs
+      (shapes the docs leave open are decoded tolerantly, so wrong guesses show
+      up as empty fields, not errors)
+- [ ] `chore`: check the pinned `lp`/`le` API versions against `/d2l/api/versions/`
+      (`Client.ProductVersion` already does this for awards)
 
 ## Later
 
+Parts of the Valence read API that have **no student tool, on purpose or for lack of a student route**:
+
+- Checklists: the documented routes list items but have no completion state for a student.
+- Rubrics, learning outcomes/competencies, attendance, surveys: instructor tools or only an `unstable` API; revisit when there is a student route.
+- Classlist/roster, user profiles and photos of other people: personal data of others, so behind the roster opt-in (decision 6), not before.
+- Grade weights/categories (newer `le` version), final grades for all courses in one call.
+- ePortfolio, locker, org structure, roles, data sets: admin or teacher scope.
 - [ ] `feat`: show teachers' names in discussion posts (needs a roles lookup that
       does not hand the roster to the assistant, behind the roster opt-in)
 - [ ] `feat`: final grades across all courses in one call (needs a live check that
@@ -101,3 +113,4 @@ need teacher or admin rights are out of scope and listed under Later.
 - [x] `list_my_groups` tool: my groups (category, member count only) and sections; pager now also accepts bare-array answers (#31)
 - [x] `get_unread_counts` tool: unread discussions, unread feedback and quizzes to attempt, per active course (#32)
 - [x] `list_awards` tool: my badges and certificates; the awards API version is asked of the instance (`/d2l/api/versions/`) with a fallback (#33)
+- [x] `docs`: README tool table, conventions for the new code in CLAUDE.md, and what the API parity does not cover (#34)

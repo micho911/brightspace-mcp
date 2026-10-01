@@ -128,7 +128,20 @@ internal/version/      build version
 
 - In `serve` mode stdout belongs to MCP. Diagnostics go to stderr only.
 - Tool descriptions say when to use the tool and what it does *not* do.
-- API version constants live in `internal/brightspace` (`lpVersion`, …).
+- API version constants live in `internal/brightspace` (`lpVersion`, …). A
+  product we have not pinned (awards, `bas`) asks `/d2l/api/versions/` via
+  `Client.ProductVersion`, with a fallback.
+- Listings go through `getAll` (both page shapes and bare arrays; it never
+  follows a link off the instance). Fields whose shape the API docs leave
+  open decode through `brightspace.FlexText`, so one surprise cannot fail a
+  whole tool. A 403 that is not the HTML login page is `ErrForbidden`, a lost
+  session is `ErrSessionExpired`; tools turn both into messages with
+  `courseError`.
+- A tool that sees other people's data (discussions, quiz attempts, groups)
+  must not read their names or IDs into its types, and needs a test that puts
+  such data in the fake answer and checks it does not come out.
+- Server-side text from teachers or classmates is untrusted: tool
+  descriptions say to report it, not obey it.
 - Tests use `httptest` for Brightspace and in-memory transports for MCP.
   Never call a real Brightspace instance in tests.
 
