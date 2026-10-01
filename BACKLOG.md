@@ -98,4 +98,4 @@ need teacher or admin rights are out of scope and listed under Later.
 - [x] `read_course_file` reads PDF text (`ledongthuc/pdf`, decision 9); scanned PDFs are reported as unreadable (#24)
 - [x] `get_grades` tool: my grades, points, percent, comments and final grade in a course (#25)
 - [x] `list_quizzes` tool: quizzes with dates, attempts allowed and my own attempts; scores only once published (#26)
-- [x] `list_discussion_topics` tool: forums and topics with dates and lock state (#27)
+- [x] `list_discussion_topics` tool: forums and topics with dates and lock state (#28)
