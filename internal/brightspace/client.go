@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -36,6 +37,11 @@ type Client struct {
 	baseURL string
 	cookies []*http.Cookie
 	http    *http.Client
+
+	// The Activity Feed bearer token (see feed.go); it is kept in memory only.
+	mu       sync.Mutex
+	token    string
+	tokenExp time.Time
 }
 
 // NewClient returns a client that sends the session cookies to baseURL only.
@@ -151,23 +157,32 @@ func (c *Client) CourseNews(ctx context.Context, orgUnitID int64) ([]NewsItem, e
 }
 
 func (c *Client) get(ctx context.Context, path string, out any) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+path, nil)
+	return c.doJSON(ctx, http.MethodGet, path, nil, nil, out)
+}
+
+// doJSON sends a request to the instance with the session cookies and
+// decodes the JSON answer into out.
+func (c *Client) doJSON(ctx context.Context, method, path string, header http.Header, body io.Reader, out any) error {
+	req, err := http.NewRequestWithContext(ctx, method, c.baseURL+path, body)
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Accept", "application/json")
+	for k, v := range header {
+		req.Header[k] = v
+	}
 	for _, cookie := range c.cookies {
 		req.AddCookie(cookie)
 	}
 
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return fmt.Errorf("GET %s: %w", path, err)
+		return fmt.Errorf("%s %s: %w", method, path, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("GET %s: %w", path, ErrNotFound)
+		return fmt.Errorf("%s %s: %w", method, path, ErrNotFound)
 	}
 	if resp.StatusCode == http.StatusUnauthorized || (resp.StatusCode >= 300 && resp.StatusCode < 400) {
 		return ErrSessionExpired
@@ -178,11 +193,11 @@ func (c *Client) get(ctx context.Context, path string, out any) error {
 		return ErrSessionExpired
 	}
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("GET %s: unexpected status %s", path, resp.Status)
+		return fmt.Errorf("%s %s: unexpected status %s", method, path, resp.Status)
 	}
 
 	if err := json.NewDecoder(io.LimitReader(resp.Body, maxResponseBytes)).Decode(out); err != nil {
-		return fmt.Errorf("GET %s: decode response: %w", path, err)
+		return fmt.Errorf("%s %s: decode response: %w", method, path, err)
 	}
 	return nil
 }

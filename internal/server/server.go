@@ -22,5 +22,6 @@ func New(version string, connect Connect) *mcp.Server {
 	addWhoAmI(s, connect)
 	addListCourses(s, connect)
 	addListAnnouncements(s, connect)
+	addListActivityFeed(s, connect)
 	return s
 }
