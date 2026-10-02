@@ -9,7 +9,6 @@ to **Done** with the PR number. Decisions and conventions are in
 Read-only API parity for a student (stacked PRs, in this order). Routes that
 need teacher or admin rights are out of scope and listed under Later.
 
-- [ ] `feat`: `get_assignment` tool (instructions, attachments, my submissions, feedback and score)
 - [ ] `feat`: `get_course_content` tool (module/topic tree)
 - [ ] `feat`: `get_content_topic` tool (one topic's description, link, file info)
 - [ ] `feat`: `read_course_file` tool (text of a topic file, with size limit)
@@ -94,3 +93,4 @@ need teacher or admin rights are out of scope and listed under Later.
 - [x] `list_activity_feed` tool: a course's Activity Feed posts, newest first; token minted in memory and sent only to the feed host the course page names; every tool now has a test for `ReadOnlyHint` (#16)
 - [x] `list_upcoming` tool: calendar events across active courses, soonest first (#18)
 - [x] `list_assignments` tool: dropbox folders with due dates and my own submission status, soonest due first (#19)
+- [x] `get_assignment` tool: instructions, attachment names, my submissions, and score and feedback once published (#20)
