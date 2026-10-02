@@ -9,7 +9,6 @@ to **Done** with the PR number. Decisions and conventions are in
 Read-only API parity for a student (stacked PRs, in this order). Routes that
 need teacher or admin rights are out of scope and listed under Later.
 
-- [ ] `feat`: `get_content_topic` tool (one topic's description, link, file info)
 - [ ] `feat`: `read_course_file` tool (text of a topic file, with size limit)
 - [ ] `feat`: `get_grades` tool (my grades and final grade in a course)
 - [ ] `feat`: `list_quizzes` tool (quizzes, dates, my attempts and scores)
@@ -94,3 +93,4 @@ need teacher or admin rights are out of scope and listed under Later.
 - [x] `list_assignments` tool: dropbox folders with due dates and my own submission status, soonest due first (#19)
 - [x] `get_assignment` tool: instructions, attachment names, my submissions, and score and feedback once published (#20)
 - [x] `get_course_content` tool: module/topic tree as a flat, depth-limited list (#21)
+- [x] `get_content_topic` tool: one content item's description, dates, file name or link, and the linked assignment/quiz/discussion ID (#22)
