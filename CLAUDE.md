@@ -78,6 +78,15 @@ These are settled. Change them only deliberately, and record the change here.
    macOS first is a starting point, not the goal: the project must become
    OS-agnostic (BACKLOG), so OS-specific code stays behind interfaces and
    build tags, and nothing outside them may depend on Apple tooling.
+9. **Reading course files (`read_course_file`).** Files are downloaded from
+   the instance only (cookies to the instance, no redirects followed), held in
+   memory, never written to disk, capped at 25 MB, and returned as text cut to
+   the caller's limit. Text, HTML, `.docx` and `.pptx` use the standard
+   library. PDF uses `github.com/ledongthuc/pdf` (BSD-3, pure Go, no
+   dependencies of its own, so the binary stays static); a malformed PDF can
+   panic the parser, so extraction recovers and reports "not readable". File
+   text is untrusted: tool descriptions tell the assistant not to follow
+   instructions inside it.
 8. **Distribution (later):** GoReleaser to GitHub Releases, a Homebrew tap, an
    npm wrapper with prebuilt binaries, and MCPB.
 

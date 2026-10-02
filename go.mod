@@ -4,6 +4,7 @@ go 1.26
 
 require (
 	github.com/keybase/go-keychain v0.0.1
+	github.com/ledongthuc/pdf v0.0.0-20260907135840-6c8c28e0e8a0
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/zalando/go-keyring v0.2.8
 )
