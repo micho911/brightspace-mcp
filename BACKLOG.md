@@ -6,9 +6,23 @@ to **Done** with the PR number. Decisions and conventions are in
 
 ## Next
 
-- [ ] `feat`: `list_upcoming` tool (calendar/due dates across courses)
-- [ ] `feat`: `list_assignments` tool (dropbox folders with due dates, my submission status)
-- [ ] `feat`: `get_course_content` tool (content modules/topics tree)
+Read-only API parity for a student (stacked PRs, in this order). Routes that
+need teacher or admin rights are out of scope and listed under Later.
+
+- [ ] `feat`: `list_upcoming` tool (calendar events across courses)
+- [ ] `feat`: `list_assignments` tool (dropbox folders, due dates, my submission status)
+- [ ] `feat`: `get_assignment` tool (instructions, attachments, my submissions, feedback and score)
+- [ ] `feat`: `get_course_content` tool (module/topic tree)
+- [ ] `feat`: `get_content_topic` tool (one topic's description, link, file info)
+- [ ] `feat`: `read_course_file` tool (text of a topic file, with size limit)
+- [ ] `feat`: `get_grades` tool (my grades and final grade in a course)
+- [ ] `feat`: `list_quizzes` tool (quizzes, dates, my attempts and scores)
+- [ ] `feat`: discussions: `list_discussion_topics`, `read_discussion_posts` (other people's names hidden)
+- [ ] `feat`: `get_course_info` tool (description, dates, semester, department)
+- [ ] `feat`: `list_my_groups` tool (my groups and sections)
+- [ ] `feat`: `get_unread_counts` tool (unread discussions, feedback, quizzes to attempt)
+- [ ] `feat`: `list_awards` tool (my badges and certificates)
+- [ ] `docs`: README tool list and a final parity review
 
 ## Later
 
@@ -30,8 +44,6 @@ to **Done** with the PR number. Decisions and conventions are in
 - [ ] `chore`: `login` feels slow after signing in (Chromium writes new
       cookies to disk in batches and we read the on-disk database); find out
       how long it takes and say so in the message, or read them sooner
-- [ ] `feat`: grades tool (my grades only)
-- [ ] `feat`: download/read course files (with size limit)
 - [ ] `feat`: `login` status command (who is logged in, which instance)
 - [ ] `feat`: detect expired session mid-`serve` and tell the assistant how to recover
 - [ ] `feat`: Windows support. **Must be tested on a real Windows machine
@@ -63,6 +75,8 @@ to **Done** with the PR number. Decisions and conventions are in
 - [ ] `chore`: CONTRIBUTING.md and issue templates before announcing publicly
 
 ## Done
+
+- [x] Client groundwork: shared pager for both Brightspace page shapes, `ErrForbidden` (a 403 that is not the login page is "no access", not "session expired"), shared course error helpers (#17)
 
 - [x] Bootstrap: README, MIT license, .gitignore
 - [x] MCP server skeleton with `get_server_info` (#1)

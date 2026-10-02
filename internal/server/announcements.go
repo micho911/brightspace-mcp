@@ -3,13 +3,10 @@ package server
 import (
 	"cmp"
 	"context"
-	"errors"
 	"fmt"
 	"slices"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-
-	"github.com/micho911/brightspace-mcp/internal/brightspace"
 )
 
 const (
@@ -53,24 +50,17 @@ func addListAnnouncements(s *mcp.Server, connect Connect) {
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in ListAnnouncementsInput) (*mcp.CallToolResult, AnnouncementList, error) {
 		if in.CourseID <= 0 {
-			return nil, AnnouncementList{}, errors.New("courseId is required: get it from list_courses")
+			return nil, AnnouncementList{}, errCourseRequired
 		}
-		limit := in.Limit
-		if limit <= 0 {
-			limit = defaultAnnouncements
-		}
-		limit = min(limit, maxAnnouncements)
+		limit := clampLimit(in.Limit, defaultAnnouncements, maxAnnouncements)
 
 		c, err := connect()
 		if err != nil {
 			return nil, AnnouncementList{}, sessionError(err, "")
 		}
 		items, err := c.CourseNews(ctx, in.CourseID)
-		if errors.Is(err, brightspace.ErrNotFound) {
-			return nil, AnnouncementList{}, fmt.Errorf("course %d not found, or the user cannot see its announcements: check the ID with list_courses", in.CourseID)
-		}
 		if err != nil {
-			return nil, AnnouncementList{}, sessionError(err, c.BaseURL())
+			return nil, AnnouncementList{}, courseError(err, c.BaseURL(), in.CourseID, "announcements")
 		}
 
 		list := AnnouncementList{
