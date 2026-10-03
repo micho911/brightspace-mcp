@@ -9,7 +9,7 @@ to **Done** with the PR number. Decisions and conventions are in
 Read-only API parity for a student (stacked PRs, in this order). Routes that
 need teacher or admin rights are out of scope and listed under Later.
 
-- [ ] `feat`: discussions: `list_discussion_topics`, `read_discussion_posts` (other people's names hidden)
+- [ ] `feat`: `read_discussion_posts` tool (posts in a topic; other people's names hidden, decision 6)
 - [ ] `feat`: `get_course_info` tool (description, dates, semester, department)
 - [ ] `feat`: `list_my_groups` tool (my groups and sections)
 - [ ] `feat`: `get_unread_counts` tool (unread discussions, feedback, quizzes to attempt)
@@ -98,3 +98,4 @@ need teacher or admin rights are out of scope and listed under Later.
 - [x] `read_course_file` reads PDF text (`ledongthuc/pdf`, decision 9); scanned PDFs are reported as unreadable (#24)
 - [x] `get_grades` tool: my grades, points, percent, comments and final grade in a course (#25)
 - [x] `list_quizzes` tool: quizzes with dates, attempts allowed and my own attempts; scores only once published (#26)
+- [x] `list_discussion_topics` tool: forums and topics with dates and lock state (#28)
