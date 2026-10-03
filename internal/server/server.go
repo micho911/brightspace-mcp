@@ -30,5 +30,6 @@ func New(version string, connect Connect) *mcp.Server {
 	addGetContentTopic(s, connect)
 	addReadCourseFile(s, connect)
 	addGetGrades(s, connect)
+	addListQuizzes(s, connect)
 	return s
 }
