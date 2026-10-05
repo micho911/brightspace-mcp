@@ -34,5 +34,6 @@ func New(version string, connect Connect) *mcp.Server {
 	addListDiscussionTopics(s, connect)
 	addReadDiscussionPosts(s, connect)
 	addGetCourseInfo(s, connect)
+	addListMyGroups(s, connect)
 	return s
 }
