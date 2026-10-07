@@ -9,7 +9,6 @@ to **Done** with the PR number. Decisions and conventions are in
 Read-only API parity for a student (stacked PRs, in this order). Routes that
 need teacher or admin rights are out of scope and listed under Later.
 
-- [ ] `feat`: `list_awards` tool (my badges and certificates)
 - [ ] `docs`: README tool list and a final parity review
 
 ## Later
@@ -101,3 +100,4 @@ need teacher or admin rights are out of scope and listed under Later.
 - [x] `get_course_info` tool: course description, dates, semester and department (#30)
 - [x] `list_my_groups` tool: my groups (category, member count only) and sections; pager now also accepts bare-array answers (#31)
 - [x] `get_unread_counts` tool: unread discussions, unread feedback and quizzes to attempt, per active course (#32)
+- [x] `list_awards` tool: my badges and certificates; the awards API version is asked of the instance (`/d2l/api/versions/`) with a fallback (#33)
