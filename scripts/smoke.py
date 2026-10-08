@@ -12,7 +12,11 @@ import sys
 
 tool = sys.argv[1] if len(sys.argv) > 1 else "whoami"
 args = json.loads(sys.argv[2]) if len(sys.argv) > 2 else {}
-binary = os.path.join(os.getcwd(), "brightspace-mcp.exe") if os.name == "nt" else "./brightspace-mcp"
+repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+binary_name = "brightspace-mcp.exe" if os.name == "nt" else "brightspace-mcp"
+binary = os.path.join(repo, binary_name)
+if os.path.isdir(binary):
+    binary = os.path.join(binary, binary_name)
 p = subprocess.Popen([binary], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
 
 

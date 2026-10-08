@@ -30,7 +30,9 @@ These are settled. Change them only deliberately, and record the change here.
      fails on purpose (`secrets_darwin_nocgo.go`).
    - **Linux:** `zalando/go-keyring` (Secret Service, called directly).
      Login supports Brave, Chrome, and Edge when GNOME Keyring or KDE Wallet
-     is available. The service has no per-app access control, so any program
+     is available. Fedora GNOME login has been verified with all three;
+     KDE Wallet and Flatpak/Snap profile paths remain unverified (BACKLOG).
+     The service has no per-app access control, so any program
      running as the user can read the session. Headless systems without
      Secret Service cannot log in.
    - **Windows:** `zalando/go-keyring` wraps Credential Manager. Login can
@@ -39,8 +41,10 @@ These are settled. Change them only deliberately, and record the change here.
      Real-machine coverage of Chrome, Edge and Brave is still required before
      claiming general Windows support. Credential Manager has no per-app
      access control and caps a secret at 2560 bytes.
-   - All access goes through `secretStore` in `internal/auth/secrets.go`, and
-     tests swap in an in-memory store.
+   - Brightspace session storage goes through `secretStore` in
+     `internal/auth/secrets.go`, and tests swap in an in-memory store. Linux
+     Chromium v11 browser keys are looked up directly through Secret Service
+     by their application attribute in `browser_linux.go`.
    - Only an item's creator may delete it or change its access list, so
      `Set` updates in place (a new build gets an access prompt) and never
      deletes and re-adds.

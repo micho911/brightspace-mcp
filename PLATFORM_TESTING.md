@@ -24,10 +24,15 @@ python scripts/smoke.py whoami
 
 ## Linux
 
-Run the flow once with GNOME Keyring and once with KDE Wallet if both desktop
-environments are available. Also test from a headless session without Secret
-Service and confirm login reports that the Secret Service is unavailable.
-Try each supported default browser you have installed (Brave, Chrome, Edge).
+Verified on Fedora GNOME: Brave, Chrome, and Edge each passed login, the MCP
+`whoami` smoke check, and logout. Login without Secret Service also reported
+the expected unavailable-service error.
+
+Flatpak and Snap browser profiles were not tested; their profile paths remain
+an open support question in [BACKLOG.md](BACKLOG.md).
+
+Still to verify: run the flow with KDE Wallet. Try each supported default
+browser available in that desktop session (Brave, Chrome, Edge).
 
 ## Windows
 
@@ -41,6 +46,6 @@ version; do not capture or share the secret value.
 
 ## macOS
 
-Run the flow with an Apple Development-signed build and confirm Keychain
-access works after rebuilding. Also verify that the SQLite reader works while
-the browser is open.
+Run `make build-signed` after completing the signing setup in `CLAUDE.md`.
+Confirm Keychain access works after rebuilding, and verify that the SQLite
+reader works while the browser is open.

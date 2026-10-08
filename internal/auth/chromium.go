@@ -25,9 +25,10 @@ import (
 // with AES-128-CBC. On macOS the key is derived from a random password the
 // browser keeps in the Keychain.
 const (
-	chromiumSalt       = "saltysalt"
-	chromiumIterations = 1003
-	chromiumKeyLength  = 16
+	chromiumSalt            = "saltysalt"
+	chromiumIterations      = 1003
+	chromiumLinuxIterations = 1
+	chromiumKeyLength       = 16
 )
 
 var errWrongKey = errors.New("cannot decrypt browser cookies (wrong key)")
@@ -37,9 +38,19 @@ func chromiumKey(password string) ([]byte, error) {
 	return pbkdf2.Key(sha1.New, password, []byte(chromiumSalt), chromiumIterations, chromiumKeyLength)
 }
 
+// chromiumLinuxKey derives the Linux Chromium cookie key. Linux uses one
+// PBKDF2 iteration; macOS uses chromiumKey's 1003 iterations.
+func chromiumLinuxKey(password string) ([]byte, error) {
+	return pbkdf2.Key(sha1.New, password, []byte(chromiumSalt), chromiumLinuxIterations, chromiumKeyLength)
+}
+
 // decryptChromiumCookie decrypts one "v10" encrypted cookie value.
 func decryptChromiumCookie(key []byte, hostKey string, encrypted []byte) (string, error) {
-	ciphertext, ok := bytes.CutPrefix(encrypted, []byte("v10"))
+	return decryptChromiumCookieVersion(key, hostKey, encrypted, "v10")
+}
+
+func decryptChromiumCookieVersion(key []byte, hostKey string, encrypted []byte, version string) (string, error) {
+	ciphertext, ok := bytes.CutPrefix(encrypted, []byte(version))
 	if !ok {
 		return "", errors.New("unsupported browser cookie encryption")
 	}
@@ -72,6 +83,22 @@ func decryptChromiumCookie(key []byte, hostKey string, encrypted []byte) (string
 		plaintext = plaintext[len(digest):]
 	}
 	return string(plaintext), nil
+}
+
+// decryptChromiumCookieLinux handles both Linux cookie formats: v10 uses
+// Chromium's built-in "peanuts" key, while v11 uses the key from Secret Service.
+func decryptChromiumCookieLinux(v11Key, v10Key []byte, hostKey string, encrypted []byte) (string, error) {
+	switch {
+	case bytes.HasPrefix(encrypted, []byte("v10")):
+		return decryptChromiumCookieVersion(v10Key, hostKey, encrypted, "v10")
+	case bytes.HasPrefix(encrypted, []byte("v11")):
+		if len(v11Key) != chromiumKeyLength {
+			return "", errors.New("Chromium v11 cookie key was not found in the desktop Secret Service")
+		}
+		return decryptChromiumCookieVersion(v11Key, hostKey, encrypted, "v11")
+	default:
+		return "", errors.New("unsupported browser cookie encryption")
+	}
 }
 
 var validHost = regexp.MustCompile(`^[a-z0-9.-]+$`)

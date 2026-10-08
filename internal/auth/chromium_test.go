@@ -85,6 +85,16 @@ func TestChromiumKey(t *testing.T) {
 	}
 }
 
+func TestChromiumLinuxKey(t *testing.T) {
+	key, err := chromiumLinuxKey("peanuts")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := hex.EncodeToString(key), "fd621fe5a2b402539dfa147ca9272778"; got != want {
+		t.Errorf("chromiumLinuxKey(peanuts) = %s, want %s", got, want)
+	}
+}
+
 func TestDecryptChromiumCookie(t *testing.T) {
 	key := mustHex(t, testKey)
 
@@ -96,6 +106,19 @@ func TestDecryptChromiumCookie(t *testing.T) {
 	got, err = decryptChromiumCookie(key, "brightspace.example.edu", mustHex(t, testEncryptedNoDigest))
 	if err != nil || got != "legacy-value" {
 		t.Errorf("without host digest: got %q, %v; want %q", got, err, "legacy-value")
+	}
+}
+
+func TestDecryptChromiumCookieLinuxVersions(t *testing.T) {
+	key := mustHex(t, testKey)
+	for _, version := range []string{"v10", "v11"} {
+		t.Run(version, func(t *testing.T) {
+			encrypted := append([]byte(version), mustHex(t, testEncrypted)[3:]...)
+			got, err := decryptChromiumCookieLinux(key, key, "brightspace.example.edu", encrypted)
+			if err != nil || got != "session-value-123" {
+				t.Fatalf("decrypt = %q, %v; want session-value-123", got, err)
+			}
+		})
 	}
 }
 

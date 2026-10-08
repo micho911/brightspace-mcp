@@ -21,10 +21,13 @@ need teacher or admin rights are out of scope and listed under Later.
 - [ ] `chore`: real-machine validation of Windows login with Chrome, Edge and
       Brave. Verify behavior with App-Bound cookies and measure session size
       against Credential Manager's 2560-byte limit.
-- [ ] `chore`: real-machine validation of Linux login with GNOME Keyring and
-      KDE Wallet, including the clear failure path when Secret Service is
-      unavailable. Verify macOS login/logout after changing the SQLite reader.
-- [ ] `chore`: real-machine validation steps are in [PLATFORM_TESTING.md](PLATFORM_TESTING.md).
+- [ ] `chore`: real-machine validation of Linux login with KDE Wallet; Fedora
+      GNOME is already verified.
+- [ ] `chore`: verify macOS login/logout after changing the SQLite reader.
+- [ ] `feat`: decide whether to support Flatpak/Snap browser installs; if so,
+      find their sandboxed cookie databases, verify Secret Service access, and
+      test each browser/package combination we claim to support. Document any
+      unsupported package formats.
 - [ ] `chore`: check the Activity Feed attachment shape on a post that has an
       attachment (the sample feed had none, so attachment names are best-effort)
 
@@ -48,9 +51,12 @@ need teacher or admin rights are out of scope and listed under Later.
 
 ## Done
 
+- [x] Fedora GNOME login checks with Chrome, Brave, and Edge; missing
+      Secret Service fails clearly (#35)
+- [x] Real-machine platform test checklist in [PLATFORM_TESTING.md](PLATFORM_TESTING.md) (#35)
 - [x] OS-agnostic development path: shared SQLite reader, platform browser
       adapters, portable unsigned builds, optional macOS signing, and CI on
-      Linux, macOS, and Windows. Real-machine checks remain in **Later**.
+      Linux, macOS, and Windows (#35)
 
 - [x] Client groundwork: shared pager for both Brightspace page shapes, `ErrForbidden` (a 403 that is not the login page is "no access", not "session expired"), shared course error helpers (#17)
 
