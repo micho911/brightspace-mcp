@@ -16,6 +16,24 @@ Ask your AI assistant (Claude Code, Codex, opencode, Cursor, Claude Desktop, …
 
 Requires Go 1.26 or newer.
 
+VS Code's Go extension (`gopls`) uses the Go build target when it checks
+packages and reports diagnostics. If it is set to another OS or architecture,
+dependencies may show build-constraint errors even though the project builds
+for your machine. For a Linux workspace, set the target in `.vscode/settings.json`:
+
+```json
+{
+  "go.toolsEnvVars": {
+    "GOOS": "linux",
+    "GOARCH": "amd64"
+  }
+}
+```
+
+Use `go env GOARCH` to check your architecture (`arm64` is common on ARM
+systems). Then run **Go: Restart Language Server** from VS Code's Command
+Palette. `go.toolsEnvVars` is passed to `gopls` by the Go extension.
+
 ```bash
 go test ./...
 go build ./cmd/brightspace-mcp
