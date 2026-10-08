@@ -1,16 +1,23 @@
 # Local development builds. Releases will be built by GoReleaser.
 
 BINARY := brightspace-mcp
-
-.PHONY: build test
-
-# On macOS, sign with an Apple Development certificate so the Keychain keeps
-# trusting the binary across rebuilds (see scripts/sign.sh).
-build:
-	go build -o $(BINARY) ./cmd/brightspace-mcp
-ifeq ($(shell uname -s),Darwin)
-	@scripts/sign.sh $(BINARY)
+ifeq ($(OS),Windows_NT)
+BINARY := brightspace-mcp.exe
 endif
 
+.PHONY: build build-signed test
+
+build:
+	go build -o $(BINARY) ./cmd/brightspace-mcp
+
+# Optional macOS signing keeps the Keychain trusting this local binary.
+build-signed: build
+	@test "$$(uname -s)" = Darwin || (echo "build-signed is macOS-only" >&2; exit 1)
+	scripts/sign.sh $(BINARY)
+
 test:
+	go test ./...
+
+.PHONY: test-race
+test-race:
 	go test -race ./...

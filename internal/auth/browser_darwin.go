@@ -109,24 +109,5 @@ func (b *chromiumBrowser) cookieDB() (string, error) {
 	}
 	dir := filepath.Join(home, "Library/Application Support", b.dataDir)
 
-	profile := "Default"
-	if data, err := os.ReadFile(filepath.Join(dir, "Local State")); err == nil {
-		var state struct {
-			Profile struct {
-				LastUsed string `json:"last_used"`
-			} `json:"profile"`
-		}
-		if json.Unmarshal(data, &state) == nil && state.Profile.LastUsed != "" &&
-			filepath.Base(state.Profile.LastUsed) == state.Profile.LastUsed {
-			profile = state.Profile.LastUsed
-		}
-	}
-
-	for _, p := range []string{"Cookies", "Network/Cookies"} {
-		path := filepath.Join(dir, profile, p)
-		if _, err := os.Stat(path); err == nil {
-			return path, nil
-		}
-	}
-	return "", fmt.Errorf("no %s cookie database found for profile %q", b.name, profile)
+	return chromiumCookieDB(dir, b.name)
 }

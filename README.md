@@ -21,9 +21,14 @@ go test ./...
 go build ./cmd/brightspace-mcp
 ```
 
-On macOS, build with `make build`. It signs the binary with your Apple
-Development certificate, so the Keychain does not ask for your password again
-after every rebuild (setup in [CLAUDE.md](CLAUDE.md#local-dev)).
+`make build` works on macOS, Linux, and Windows. Login reads cookies from
+Brave, Chrome, or Edge on macOS and Linux. Windows has an implementation for
+DPAPI and AES GCM cookies, but browser and Credential Manager behavior still
+needs real-machine verification; App-Bound (`v20`) cookies cannot be read.
+Linux login requires a running Secret Service (GNOME Keyring or KDE Wallet);
+headless systems without one cannot log in. On macOS, `make build-signed`
+signs the binary with an Apple Development certificate to keep Keychain access
+trusted across rebuilds (setup in [CLAUDE.md](CLAUDE.md#local-dev)).
 
 ## License
 

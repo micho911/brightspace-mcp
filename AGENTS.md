@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 Guidance for AI coding assistants (and humans) working on this repository.
 The work queue lives in [BACKLOG.md](BACKLOG.md).
@@ -28,9 +28,9 @@ These are settled. Change them only deliberately, and record the change here.
      it, trust `security` for every program. The keychain item's access list
      names our binary. macOS builds need `CGO_ENABLED=1`; without it the build
      fails on purpose (`secrets_darwin_nocgo.go`).
-   - **Linux:** `zalando/go-keyring` (Secret Service, called directly). Login
-     supports Brave, Chrome, and Edge when GNOME Keyring or KDE Wallet is
-     available. The service has no per-app access control, so any program
+   - **Linux:** `zalando/go-keyring` (Secret Service, called directly).
+     Login supports Brave, Chrome, and Edge when GNOME Keyring or KDE Wallet
+     is available. The service has no per-app access control, so any program
      running as the user can read the session. Headless systems without
      Secret Service cannot log in.
    - **Windows:** `zalando/go-keyring` wraps Credential Manager. Login can
@@ -49,9 +49,9 @@ These are settled. Change them only deliberately, and record the change here.
      without a Team ID (ad-hoc or self-signed) are recorded as `cdhash:…`,
      so every rebuild asks for the keychain password. A self-signed
      certificate fixes the first check but not the second (#9 tried it).
-     Local builds are unsigned by default; macOS users can sign with a free
-     **Apple Development** certificate (`make build-signed`). Releases get
-     Developer ID with GoReleaser.
+   Local builds are unsigned by default on every OS; macOS users can opt into
+   signing with a free **Apple Development** certificate (`make build-signed`).
+   Releases get Developer ID with GoReleaser.
    - During the beta, `login` recommends **Allow** over **Always Allow**.
      Keep that wording a recommendation, not an order.
 4. **Session goes to one origin only, with one named exception.**
