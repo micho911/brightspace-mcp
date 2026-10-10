@@ -18,19 +18,20 @@ need teacher or admin rights are out of scope and listed under Later.
 - [ ] `feat`: final grades across all courses in one call (needs a live check that
       `/le/{v}/grades/final/values/myGradeValues/` says which course each value belongs to)
 - [ ] `feat`: grade weights and categories in `get_grades` (`GradeObject.Weight` needs a newer `le` API version than 1.74)
-- [ ] `chore`: **become OS-agnostic.** Today login, the session store and dev
-      signing are macOS-specific (Keychain partitions/Team ID, Apple
-      Development certificate, Chromium `Safe Storage` key). Before claiming
-      Windows/Linux support (items below):
-      - keep every OS detail behind the existing interfaces (`secretStore`,
-        `browser`) and build tags; no Apple specifics in shared code or tools;
-      - the dev loop (`make build`, `make test`, smoke checks) must work on
-        every OS without an Apple account; signing stays an optional macOS step;
-      - CI runs the tests on Linux, macOS and Windows;
-      - release signing per OS (Developer ID/notarization, Windows
-        Authenticode) moves to GoReleaser.
+- [ ] `feat`: investigate Windows browser cookie access and validate login
+      with Chrome, Edge and Brave before claiming Windows support. Do not
+      require users to weaken browser encryption; measure session size against
+      Credential Manager's 2560-byte limit.
+- [ ] `chore`: real-machine validation of Linux login with KDE Wallet; Fedora
+      GNOME is already verified.
+- [ ] `chore`: verify macOS login/logout after changing the SQLite reader.
+- [ ] `feat`: decide whether to support Flatpak/Snap browser installs; if so,
+      find their sandboxed cookie databases, verify Secret Service access, and
+      test each browser/package combination we claim to support. Document any
+      unsupported package formats.
 - [ ] `chore`: check the Activity Feed attachment shape on a post that has an
       attachment (the sample feed had none, so attachment names are best-effort)
+
 - [ ] `feat`: show who posted in the Activity Feed (`actor` is only a URL to
       another D2L service, so it needs a lookup on a second host)
 - [ ] `chore`: `login` feels slow after signing in (Chromium writes new
@@ -38,23 +39,6 @@ need teacher or admin rights are out of scope and listed under Later.
       how long it takes and say so in the message, or read them sooner
 - [ ] `feat`: `login` status command (who is logged in, which instance)
 - [ ] `feat`: detect expired session mid-`serve` and tell the assistant how to recover
-- [ ] `feat`: Windows support. **Must be tested on a real Windows machine
-      before we claim support.** Open questions:
-      - Chrome 127+ uses App-Bound Encryption for cookies (only Chrome can
-        decrypt them). Check Chrome, Edge and Brave; reading cookies from the
-        browser may be impossible, which would need a different login method
-        (decide in CLAUDE.md first; it must still never see the password).
-      - Credential Manager limits a secret to 2560 bytes (`ErrSetDataTooBig`).
-        Measure the real session size; if needed, store fewer cookies or
-        split the item.
-      - Credential Manager has no per-app access control: any program running
-        as the user can read the session. Document it; no library fixes it.
-- [ ] `feat`: Linux support. Test on a real desktop (GNOME and KDE):
-      - Secret Service has no per-app access control (same caveat as Windows).
-      - It is often missing (WSL, headless, minimal desktops); `login` must
-        fail with a clear message.
-      - Chromium's cookie key lives in Secret Service, or is the fixed
-        fallback `peanuts` when there is none.
 - [ ] `feat`: Firefox and Safari support
 - [ ] `feat`: choose browser/profile explicitly (`login --browser brave --profile …`)
 - [ ] `feat`: opt-in write tools (e.g. submit to dropbox) behind a flag
@@ -67,6 +51,13 @@ need teacher or admin rights are out of scope and listed under Later.
 - [ ] `chore`: CONTRIBUTING.md and issue templates before announcing publicly
 
 ## Done
+
+- [x] Fedora GNOME login checks with Chrome, Brave, and Edge; missing
+      Secret Service fails clearly (#35)
+- [x] Real-machine platform test checklist in [PLATFORM_TESTING.md](PLATFORM_TESTING.md) (#35)
+- [x] OS-agnostic development path: shared SQLite reader, platform browser
+      adapters, portable unsigned builds, optional macOS signing, and CI on
+      Linux, macOS, and Windows (#35)
 
 - [x] Client groundwork: shared pager for both Brightspace page shapes, `ErrForbidden` (a 403 that is not the login page is "no access", not "session expired"), shared course error helpers (#17)
 

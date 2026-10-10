@@ -8,23 +8,28 @@ import (
 	"crypto/pbkdf2"
 	"crypto/sha1"
 	"crypto/sha256"
-	"encoding/hex"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
-	"os/exec"
+	"os"
+	"path/filepath"
 	"regexp"
+	"strings"
+
+	_ "modernc.org/sqlite"
 )
 
 // Chromium-based browsers (Chrome, Brave, Edge, …) encrypt cookie values
 // with AES-128-CBC. On macOS the key is derived from a random password the
 // browser keeps in the Keychain.
 const (
-	chromiumSalt       = "saltysalt"
-	chromiumIterations = 1003
-	chromiumKeyLength  = 16
+	chromiumSalt            = "saltysalt"
+	chromiumIterations      = 1003
+	chromiumLinuxIterations = 1
+	chromiumKeyLength       = 16
 )
 
 var errWrongKey = errors.New("cannot decrypt browser cookies (wrong key)")
@@ -34,9 +39,19 @@ func chromiumKey(password string) ([]byte, error) {
 	return pbkdf2.Key(sha1.New, password, []byte(chromiumSalt), chromiumIterations, chromiumKeyLength)
 }
 
+// chromiumLinuxKey derives the Linux Chromium cookie key. Linux uses one
+// PBKDF2 iteration; macOS uses chromiumKey's 1003 iterations.
+func chromiumLinuxKey(password string) ([]byte, error) {
+	return pbkdf2.Key(sha1.New, password, []byte(chromiumSalt), chromiumLinuxIterations, chromiumKeyLength)
+}
+
 // decryptChromiumCookie decrypts one "v10" encrypted cookie value.
 func decryptChromiumCookie(key []byte, hostKey string, encrypted []byte) (string, error) {
-	ciphertext, ok := bytes.CutPrefix(encrypted, []byte("v10"))
+	return decryptChromiumCookieVersion(key, hostKey, encrypted, "v10")
+}
+
+func decryptChromiumCookieVersion(key []byte, hostKey string, encrypted []byte, version string) (string, error) {
+	ciphertext, ok := bytes.CutPrefix(encrypted, []byte(version))
 	if !ok {
 		return "", errors.New("unsupported browser cookie encryption")
 	}
@@ -71,50 +86,93 @@ func decryptChromiumCookie(key []byte, hostKey string, encrypted []byte) (string
 	return string(plaintext), nil
 }
 
+// decryptChromiumCookieLinux handles both Linux cookie formats: v10 uses
+// Chromium's built-in "peanuts" key, while v11 uses the key from Secret Service.
+func decryptChromiumCookieLinux(v11Key, v10Key []byte, hostKey string, encrypted []byte) (string, error) {
+	switch {
+	case bytes.HasPrefix(encrypted, []byte("v10")):
+		return decryptChromiumCookieVersion(v10Key, hostKey, encrypted, "v10")
+	case bytes.HasPrefix(encrypted, []byte("v11")):
+		if len(v11Key) != chromiumKeyLength {
+			return "", errors.New("Chromium v11 cookie key was not found in the desktop Secret Service")
+		}
+		return decryptChromiumCookieVersion(v11Key, hostKey, encrypted, "v11")
+	default:
+		return "", errors.New("unsupported browser cookie encryption")
+	}
+}
+
 var validHost = regexp.MustCompile(`^[a-z0-9.-]+$`)
+
+func chromiumCookieDB(dir, browserName string) (string, error) {
+	profile := "Default"
+	if data, err := os.ReadFile(filepath.Join(dir, "Local State")); err == nil {
+		var state struct {
+			Profile struct {
+				LastUsed string `json:"last_used"`
+			} `json:"profile"`
+		}
+		if json.Unmarshal(data, &state) == nil && state.Profile.LastUsed != "" && filepath.Base(state.Profile.LastUsed) == state.Profile.LastUsed {
+			profile = state.Profile.LastUsed
+		}
+	}
+	for _, suffix := range []string{"Cookies", "Network/Cookies"} {
+		p := filepath.Join(dir, profile, suffix)
+		if _, err := os.Stat(p); err == nil {
+			return p, nil
+		}
+	}
+	return "", fmt.Errorf("no %s cookie database found for profile %q", browserName, profile)
+}
 
 // readChromiumCookies returns the cookies a Chromium cookie database holds
 // for host, decrypted with key. The database is opened read-only, so this
 // works while the browser is running.
 func readChromiumCookies(ctx context.Context, dbPath, host string, key []byte) ([]Cookie, error) {
+	return readChromiumCookiesWithDecrypt(ctx, dbPath, host, func(host string, encrypted []byte) (string, error) {
+		return decryptChromiumCookie(key, host, encrypted)
+	})
+}
+
+func readChromiumCookiesWithDecrypt(ctx context.Context, dbPath, host string, decrypt func(host string, encrypted []byte) (string, error)) ([]Cookie, error) {
 	// host ends up in the SQL query; allow hostname characters only.
 	if !validHost.MatchString(host) {
 		return nil, fmt.Errorf("invalid host %q", host)
 	}
-	query := "select host_key, name, value, hex(encrypted_value) as encrypted from cookies " +
-		"where host_key like '%" + host + "'"
-	db := url.URL{Scheme: "file", Path: dbPath, RawQuery: "immutable=1"}
-
-	out, err := exec.CommandContext(ctx, "sqlite3", "-readonly", "-json", db.String(), query).Output()
+	path := filepath.ToSlash(dbPath)
+	// A Windows drive path must be an absolute URI path (file:///C:/...),
+	// otherwise URL.String treats the drive letter as the URI authority.
+	if filepath.VolumeName(dbPath) != "" && !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	dbURL := url.URL{Scheme: "file", Path: path, RawQuery: "mode=ro&immutable=1"}
+	db, err := sql.Open("sqlite", dbURL.String())
 	if err != nil {
 		return nil, fmt.Errorf("read browser cookies: %w", err)
 	}
-
-	var rows []struct {
-		HostKey   string `json:"host_key"`
-		Name      string `json:"name"`
-		Value     string `json:"value"`
-		Encrypted string `json:"encrypted"`
+	defer db.Close()
+	rows, err := db.QueryContext(ctx, "SELECT host_key, name, value, encrypted_value FROM cookies WHERE host_key LIKE ?", "%"+host)
+	if err != nil {
+		return nil, fmt.Errorf("read browser cookies: %w", err)
 	}
-	if len(bytes.TrimSpace(out)) > 0 {
-		if err := json.Unmarshal(out, &rows); err != nil {
+	defer rows.Close()
+
+	var cookies []*http.Cookie
+	for rows.Next() {
+		var hostKey, name, value string
+		var encrypted []byte
+		if err := rows.Scan(&hostKey, &name, &value, &encrypted); err != nil {
 			return nil, fmt.Errorf("read browser cookies: %w", err)
 		}
-	}
-
-	cookies := make([]*http.Cookie, 0, len(rows))
-	for _, r := range rows {
-		value := r.Value
-		if r.Encrypted != "" {
-			encrypted, err := hex.DecodeString(r.Encrypted)
-			if err != nil {
-				return nil, fmt.Errorf("read browser cookies: %w", err)
-			}
-			if value, err = decryptChromiumCookie(key, r.HostKey, encrypted); err != nil {
+		if len(encrypted) > 0 {
+			if value, err = decrypt(hostKey, encrypted); err != nil {
 				return nil, err
 			}
 		}
-		cookies = append(cookies, &http.Cookie{Name: r.Name, Value: value, Domain: r.HostKey})
+		cookies = append(cookies, &http.Cookie{Name: name, Value: value, Domain: hostKey})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("read browser cookies: %w", err)
 	}
 	return hostCookies(host, cookies), nil
 }

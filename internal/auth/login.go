@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -69,14 +70,31 @@ func Login(ctx context.Context, baseURL string, verify Verify, out io.Writer) (S
 	defer cancel()
 	ticker := time.NewTicker(pollInterval)
 	defer ticker.Stop()
+	announcedLockedDB := false
 	for {
 		select {
 		case <-ctx.Done():
 			return Session{}, fmt.Errorf("login not completed: %w", ctx.Err())
 		case <-ticker.C:
 		}
-		if s, ok, err := check(); err != nil || ok {
-			return s, err
+		if s, ok, err := check(); err != nil {
+			// Chromium holds its cookie database exclusively while running on
+			// Windows. Wait for the user to finish signing in and close it.
+			if isSQLiteCantOpen(err) {
+				if !announcedLockedDB {
+					fmt.Fprintln(out, "The browser is keeping its cookie database open. After signing in, close the browser to finish login.")
+					announcedLockedDB = true
+				}
+				continue
+			}
+			return Session{}, err
+		} else if ok {
+			return s, nil
 		}
 	}
+}
+
+func isSQLiteCantOpen(err error) bool {
+	var sqliteErr interface{ Code() int }
+	return errors.As(err, &sqliteErr) && sqliteErr.Code() == 14 // SQLITE_CANTOPEN
 }

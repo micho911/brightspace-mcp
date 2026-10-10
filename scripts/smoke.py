@@ -6,12 +6,18 @@ scripts/smoke.py list_announcements '{"courseId": 123}'. Uses the saved
 session, so it talks to the real Brightspace instance.
 """
 import json
+import os
 import subprocess
 import sys
 
 tool = sys.argv[1] if len(sys.argv) > 1 else "whoami"
 args = json.loads(sys.argv[2]) if len(sys.argv) > 2 else {}
-p = subprocess.Popen(["./brightspace-mcp"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+binary_name = "brightspace-mcp.exe" if os.name == "nt" else "brightspace-mcp"
+binary = os.path.join(repo, binary_name)
+if os.path.isdir(binary):
+    binary = os.path.join(binary, binary_name)
+p = subprocess.Popen([binary], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
 
 
 def send(msg):
