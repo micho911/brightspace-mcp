@@ -36,13 +36,11 @@ browser available in that desktop session (Brave, Chrome, Edge).
 
 ## Windows
 
-Set Chrome, Edge, and Brave as the default browser in turn and run the flow
-for each installed browser. A cookie encrypted with App-Bound Encryption
-(`v20`) should fail with an explicit unsupported-encryption message; record
-the browser and version, without including cookie data. Confirm successful
-login/logout with a browser profile whose cookies can be read. If Credential
-Manager rejects the session as too large, report the error and the browser
-version; do not capture or share the secret value.
+Windows is not supported yet. Before claiming support, choose an approach for
+browser cookie encryption that does not require users to weaken browser
+security, then validate login/logout with Chrome, Edge, and Brave on real
+machines. Measure session size against Credential Manager's 2560-byte limit.
+Never capture or share cookie values.
 
 ## macOS
 

@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	_ "modernc.org/sqlite"
 )
@@ -138,7 +139,13 @@ func readChromiumCookiesWithDecrypt(ctx context.Context, dbPath, host string, de
 	if !validHost.MatchString(host) {
 		return nil, fmt.Errorf("invalid host %q", host)
 	}
-	dbURL := url.URL{Scheme: "file", Path: filepath.ToSlash(dbPath), RawQuery: "mode=ro&immutable=1"}
+	path := filepath.ToSlash(dbPath)
+	// A Windows drive path must be an absolute URI path (file:///C:/...),
+	// otherwise URL.String treats the drive letter as the URI authority.
+	if filepath.VolumeName(dbPath) != "" && !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	dbURL := url.URL{Scheme: "file", Path: path, RawQuery: "mode=ro&immutable=1"}
 	db, err := sql.Open("sqlite", dbURL.String())
 	if err != nil {
 		return nil, fmt.Errorf("read browser cookies: %w", err)

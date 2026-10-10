@@ -18,9 +18,10 @@ need teacher or admin rights are out of scope and listed under Later.
 - [ ] `feat`: final grades across all courses in one call (needs a live check that
       `/le/{v}/grades/final/values/myGradeValues/` says which course each value belongs to)
 - [ ] `feat`: grade weights and categories in `get_grades` (`GradeObject.Weight` needs a newer `le` API version than 1.74)
-- [ ] `chore`: real-machine validation of Windows login with Chrome, Edge and
-      Brave. Verify behavior with App-Bound cookies and measure session size
-      against Credential Manager's 2560-byte limit.
+- [ ] `feat`: investigate Windows browser cookie access and validate login
+      with Chrome, Edge and Brave before claiming Windows support. Do not
+      require users to weaken browser encryption; measure session size against
+      Credential Manager's 2560-byte limit.
 - [ ] `chore`: real-machine validation of Linux login with KDE Wallet; Fedora
       GNOME is already verified.
 - [ ] `chore`: verify macOS login/logout after changing the SQLite reader.

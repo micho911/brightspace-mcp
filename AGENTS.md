@@ -35,12 +35,10 @@ These are settled. Change them only deliberately, and record the change here.
      The service has no per-app access control, so any program
      running as the user can read the session. Headless systems without
      Secret Service cannot log in.
-   - **Windows:** `zalando/go-keyring` wraps Credential Manager. Login can
-     read Chromium cookies encrypted with the current-user DPAPI key and AES
-     GCM; cookies marked `v20` use App-Bound Encryption and fail clearly.
-     Real-machine coverage of Chrome, Edge and Brave is still required before
-     claiming general Windows support. Credential Manager has no per-app
-     access control and caps a secret at 2560 bytes.
+   - **Windows:** not supported yet. Browser cookie encryption and session
+     storage need more real-machine validation before Windows support can be
+     claimed. Credential Manager has no per-app access control and caps a
+     secret at 2560 bytes.
    - Brightspace session storage goes through `secretStore` in
      `internal/auth/secrets.go`, and tests swap in an in-memory store. Linux
      Chromium v11 browser keys are looked up directly through Secret Service
@@ -91,9 +89,8 @@ These are settled. Change them only deliberately, and record the change here.
 7. **Browser support.** Chromium browsers (Brave, Chrome, Edge) on macOS and
    Linux use a shared pure-Go SQLite reader (read-only, `immutable=1`). Browser
    discovery and cookie-key retrieval stay behind platform files and the
-   `browser` interface. Windows supports the legacy/current-user encryption
-   path, subject to the App-Bound limitation above. Firefox and Safari remain
-   unsupported.
+   `browser` interface. Windows browser cookie access remains unsupported.
+   Firefox and Safari remain unsupported.
 9. **Reading course files (`read_course_file`).** Files are downloaded from
    the instance only (cookies to the instance, no redirects followed), held in
    memory, never written to disk, capped at 25 MB, and returned as text cut to

@@ -40,9 +40,8 @@ go build ./cmd/brightspace-mcp
 ```
 
 `make build` works on macOS, Linux, and Windows. Login reads cookies from
-Brave, Chrome, or Edge on macOS and Linux. Windows has an implementation for
-DPAPI and AES GCM cookies, but browser and Credential Manager behavior still
-needs real-machine verification; App-Bound (`v20`) cookies cannot be read.
+Brave, Chrome, or Edge on macOS and Linux. Windows login is not supported yet;
+Windows browser cookie access needs further work before support can be claimed.
 Linux login requires a running Secret Service (GNOME Keyring or KDE Wallet);
 headless systems without one cannot log in. On macOS, `make build-signed`
 signs the binary with an Apple Development certificate to keep Keychain access
